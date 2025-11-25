@@ -4,7 +4,6 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/common.nix
-    ../../modules/nixos/framework-laptop.nix
   ];
 
   networking.hostName = hostCfg.hostName;

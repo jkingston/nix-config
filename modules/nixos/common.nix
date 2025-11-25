@@ -7,9 +7,12 @@
   i18n.defaultLocale = "en_GB.UTF-8";
   console.keyMap = "uk";
 
+  services.xserver.enable = false;
+  services.xserver.desktopManager.gnome.enable = false;
+  services.xserver.displayManager.gdm.enable = false;
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.enableUnifiedKernelImages = true;
   boot.plymouth.enable = true;
 
   networking.networkmanager.enable = true;
@@ -38,13 +41,20 @@
   # Stylix shared between hosts; cursor size could still be global
   stylix = {
     enable = true;
-    base16Scheme = "catppuccin-mocha";
+
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+
     image = pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/catppuccin/wallpapers/main/landscapes/forest/forest.png";
-      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      url = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/forrest.png";
+      sha256 = "sha256-jDqDj56e9KI/xgEIcESkpnpJUBo6zJiAq1AkDQwcHQM=";
     };
-    fonts.monospace = [ "JetBrainsMono Nerd Font" ];
-    cursor.size = 40;
+
+    fonts.monospace = {
+      package = pkgs.nerd-fonts.jetbrains-mono;
+      name = "JetBrainsMono Nerd Font";
+    };
+
+    overlays.enable = false;
   };
 
   system.stateVersion = "25.05";

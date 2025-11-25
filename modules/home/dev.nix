@@ -16,13 +16,20 @@
 
   programs.git = {
     enable = true;
-    userName = "YOUR NAME";     # you can override via HM per-host or in default-user.nix
-    userEmail = "you@example.com";
+    userName = "Jack Kingston";     # remember to swap these later
+    userEmail = "j.kngstn@gmail.com";
+
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = false;
-      pager = "delta";
-      delta.navigate = true;
+
+      core = {
+        pager = "delta";
+      };
+
+      delta = {
+        navigate = true;
+      };
     };
   };
 

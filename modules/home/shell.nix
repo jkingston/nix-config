@@ -5,7 +5,7 @@
     enable = true;
 
     enableCompletion = true;
-    autosuggestions.enable = true;
+    autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
     oh-my-zsh = {
@@ -21,11 +21,12 @@
       gp = "git push";
       rebuild = "sudo nixos-rebuild switch --flake ~/nix-config";
     };
-  };
 
-  # Optionally set as default shell:
-  programs.zsh.loginShellInit = ''
-    export EDITOR="nvim"
-  '';
+
+    # Optionally set as default shell:
+    initContent = ''
+      export EDITOR="nvim"
+    '';
+  };
 }
 

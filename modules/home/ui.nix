@@ -10,13 +10,12 @@
     waybar
     mako
     hyprlock
-    wvkbd-mobintl
+    wvkbd
     cliphist
     localsend
 
-    # Browsers / misc
+    # Browser / misc
     chromium
-    webapp-manager
   ];
 
   ########################################
@@ -222,7 +221,6 @@
   services.mako = {
     enable = true;
     settings = {
-      font = "Sans 13";
       padding = "10,20,10,20";
       defaultTimeout = 5000;
       borderRadius = 10;
@@ -236,30 +234,34 @@
   programs.hyprlock.enable = true;
 
   ########################################
-  ## OSK scripts
+  ## OSK script (~/.local/bin/osk-toggle)
   ########################################
 
-  xdg.configFile."bin/osk-toggle".text = ''
-    #!/usr/bin/env bash
-    if pgrep -x wvkbd-mobintl >/dev/null; then
-      pkill -x wvkbd-mobintl
-    else
-      wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
-    fi
-  '';
-  home.file."bin/osk-toggle".chmod = "0755";
+  home.file.".local/bin/osk-toggle" = {
+    text = ''
+      #!/usr/bin/env bash
+      if pgrep -x wvkbd-mobintl >/dev/null; then
+        pkill -x wvkbd-mobintl
+      else
+        wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
+      fi
+    '';
+    executable = true;
+  };
 
   ########################################
-  ## Clipboard picker script
+  ## Clipboard picker script (~/.local/bin/anyrun-clipboard)
   ########################################
 
-  xdg.configFile."bin/anyrun-clipboard".text = ''
-    #!/usr/bin/env bash
-    cliphist list \
-      | anyrun --plugins libstdin.so \
-      | cliphist decode \
-      | wl-copy
-  '';
-  home.file."bin/anyrun-clipboard".chmod = "0755";
+  home.file.".local/bin/anyrun-clipboard" = {
+    text = ''
+      #!/usr/bin/env bash
+      cliphist list \
+        | anyrun --plugins libstdin.so \
+        | cliphist decode \
+        | wl-copy
+    '';
+    executable = true;
+  };
 }
 

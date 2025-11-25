@@ -4,7 +4,7 @@ let
   scaleStr = builtins.toString hostCfg.scale;
   monitorName = hostCfg.internalMonitor;
 in {
-  home.username = jack;
+  home.username = username;
   home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.05";
 
@@ -21,12 +21,15 @@ in {
 
   gtk = {
     enable = true;
-    gtk3.extraConfig = {
-      "gtk-xft-dpi" =
-        let dpi = 96.0 * hostCfg.scale * 1000.0;
-        in toString (builtins.floor dpi);
-    };
-    gtk4.extraConfig = gtk.gtk3.extraConfig;
+
+    gtk3.extraConfig =
+      let
+        dpi = 96.0 * hostCfg.scale * 1000.0;
+      in {
+        "gtk-xft-dpi" = builtins.toString (builtins.floor dpi);
+      };
+
+    gtk4.extraConfig = config.gtk.gtk3.extraConfig;
   };
 
   wayland.windowManager.hyprland = {
