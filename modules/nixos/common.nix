@@ -28,9 +28,42 @@
 
   programs.uwsm.enable = true;
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.plymouth.enable = true;
+  # Catppuccin - primary theming system
+  catppuccin = {
+    enable = true;
+    flavor = "mocha";
+    accent = "blue";
+  };
+
+  boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+
+    # Plymouth with catppuccin theme (via catppuccin/nix)
+    plymouth = {
+      enable = true;
+      catppuccin = {
+        enable = true;
+        flavor = "mocha";
+      };
+    };
+
+    # Enable systemd in initrd for graphical LUKS prompt
+    initrd.systemd.enable = true;
+
+    # Silent boot for clean experience
+    consoleLogLevel = 0;
+    initrd.verbose = false;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "boot.shell_on_fail"
+      "loglevel=3"
+      "rd.systemd.show_status=false"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+    ];
+  };
 
   networking.networkmanager.enable = true;
 
@@ -55,17 +88,21 @@
     wl-clipboard grim slurp swappy
   ];
 
-  # Stylix shared between hosts; cursor size could still be global
+  # Stylix - only for wallpaper and fonts (catppuccin handles the rest)
   stylix = {
     enable = true;
+    autoEnable = false;  # Don't auto-theme apps - catppuccin does that
 
+    # Color scheme still needed for Stylix internals
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
+    # Wallpaper (catppuccin/nix doesn't handle this)
     image = pkgs.fetchurl {
       url = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/forrest.png";
       sha256 = "sha256-jDqDj56e9KI/xgEIcESkpnpJUBo6zJiAq1AkDQwcHQM=";
     };
 
+    # Fonts (catppuccin/nix doesn't handle this)
     fonts.monospace = {
       package = pkgs.nerd-fonts.jetbrains-mono;
       name = "JetBrainsMono Nerd Font";
