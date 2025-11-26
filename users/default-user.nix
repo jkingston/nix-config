@@ -1,7 +1,5 @@
 {
   config,
-  pkgs,
-  lib,
   hostCfg,
   username,
   ...
@@ -9,7 +7,6 @@
 
 let
   scaleStr = builtins.toString hostCfg.scale;
-  monitorName = hostCfg.internalMonitor;
 in
 {
   home = {
