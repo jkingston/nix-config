@@ -29,10 +29,17 @@
 
       # Browser / misc
       chromium
+      nautilus # file manager
 
       # Media control (Omarchy)
       playerctl
       brightnessctl
+
+      # Notifications (Omarchy uses mako)
+      mako
+
+      # Dev tools (Omarchy)
+      lazydocker
     ];
 
     file.".local/bin/osk-toggle" = {
@@ -94,37 +101,39 @@
 
       exec-once = [
         "hyprpanel"
+        "mako" # notifications daemon
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
 
-      # Keybinds (Omarchy-style)
+      # Keybinds (Omarchy - from official manual)
       bind = [
-        # Core apps (Omarchy)
+        # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
         "$mod, SPACE, exec, walker"
-        "$mod, B, exec, chromium"
-        "$mod, N, exec, ghostty -e nvim"
-        "$mod, T, exec, ghostty -e btop"
+        "$mod SHIFT, B, exec, chromium"
+        "$mod SHIFT, N, exec, ghostty -e nvim"
+        "$mod SHIFT, T, exec, ghostty -e btop"
+        "$mod SHIFT, F, exec, nautilus" # file manager
+        "$mod SHIFT, D, exec, ghostty -e lazydocker"
+        "$mod CTRL, S, exec, localsend" # share menu
 
-        # Window management (Omarchy)
+        # Window management
         "$mod, W, killactive,"
-        "$mod, J, togglesplit," # dwindle
-        "$mod, P, pseudo," # dwindle
-        "$mod SHIFT, V, togglefloating,"
-        "SHIFT, F11, fullscreen, 0"
-        "ALT, F11, fullscreen, 1" # maximize (keeps gaps)
+        "CTRL ALT, DELETE, exec, hyprctl dispatch closewindow address:*" # close all
+        "$mod, T, togglefloating," # toggle tiling/floating
+        "$mod, O, pin," # sticky'n'floating (pin)
+        "$mod, F, fullscreen, 0"
+        "$mod ALT, F, fullscreen, 1" # full width (maximize)
+        "$mod, G, togglegroup," # window grouping
+        "$mod ALT, G, moveoutofgroup," # move out of group
+        "$mod ALT, TAB, changegroupactive," # cycle group windows
 
-        # Focus (arrow keys - Omarchy style)
+        # Focus (arrow keys - Omarchy)
         "$mod, LEFT, movefocus, l"
         "$mod, RIGHT, movefocus, r"
         "$mod, UP, movefocus, u"
         "$mod, DOWN, movefocus, d"
-
-        # Focus (vim-style alternative)
-        "$mod, H, movefocus, l"
-        "$mod, L, movefocus, r"
-        "$mod, K, movefocus, u"
 
         # Swap windows (Omarchy)
         "$mod SHIFT, LEFT, swapwindow, l"
@@ -132,11 +141,11 @@
         "$mod SHIFT, UP, swapwindow, u"
         "$mod SHIFT, DOWN, swapwindow, d"
 
-        # Resize (Omarchy uses minus/equal keys)
-        "$mod, MINUS, resizeactive, -100 0"
-        "$mod, EQUAL, resizeactive, 100 0"
-        "$mod SHIFT, MINUS, resizeactive, 0 -100"
+        # Resize (Omarchy: Equal=grow left, Minus=grow right)
+        "$mod, EQUAL, resizeactive, -100 0"
+        "$mod, MINUS, resizeactive, 100 0"
         "$mod SHIFT, EQUAL, resizeactive, 0 100"
+        "$mod SHIFT, MINUS, resizeactive, 0 -100"
 
         # Workspaces 1-10
         "$mod, 1, workspace, 1"
@@ -167,33 +176,37 @@
         "$mod SHIFT, TAB, workspace, e-1"
         "$mod CTRL, TAB, workspace, previous"
 
-        # Cycle windows (Omarchy)
-        "ALT, TAB, cyclenext,"
-        "ALT SHIFT, TAB, cyclenext, prev"
+        # Scratchpad (Omarchy uses S, not grave)
+        "$mod, S, togglespecialworkspace, magic"
+        "$mod ALT, S, movetoworkspace, special:magic"
 
-        # Special workspace (scratchpad)
-        "$mod, grave, togglespecialworkspace, magic"
-        "$mod SHIFT, grave, movetoworkspace, special:magic"
-
-        # Screenshots (Omarchy-style)
-        ", Print, exec, grimblast copy area"
-        "SHIFT, Print, exec, grimblast copy screen"
+        # Screenshots (Omarchy)
+        ", Print, exec, grimblast edit area" # screenshot with editing
+        "SHIFT, Print, exec, grimblast copy screen" # screenshot to clipboard
         "$mod, Print, exec, hyprpicker -a" # color picker
 
-        # Clipboard picker
-        "$mod, V, exec, ~/.local/bin/walker-clipboard"
+        # Clipboard (Omarchy universal)
+        "$mod, C, exec, wl-copy"
+        "$mod, V, exec, wl-paste"
+        "$mod CTRL, V, exec, ~/.local/bin/walker-clipboard" # clipboard manager
 
-        # Lock screen
+        # Toggles
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
+        "$mod CTRL, N, exec, hyprsunset" # toggle nightlight
+        "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 hyprpanel" # toggle top bar
+        "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
 
-        # Emoji picker (Omarchy)
+        # Notifications (Omarchy uses comma)
+        "$mod, COMMA, exec, makoctl dismiss"
+        "$mod SHIFT, COMMA, exec, makoctl dismiss --all"
+        "$mod CTRL, COMMA, exec, makoctl mode -t do-not-disturb"
+        "$mod ALT, COMMA, exec, makoctl invoke"
+
+        # Emoji picker
         "$mod CTRL, E, exec, walker -m symbols"
 
-        # OSK
-        "$mod, O, exec, ~/.local/bin/osk-toggle"
-
-        # Toggle transparency (Omarchy)
-        "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
+        # System
+        "$mod, ESCAPE, exec, walker -m power" # lock/suspend/restart/shutdown
       ];
 
       # Mouse bindings
