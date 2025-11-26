@@ -28,9 +28,39 @@
 
   programs.uwsm.enable = true;
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.plymouth.enable = true;
+  # Catppuccin global settings
+  catppuccin = {
+    enable = true;
+    flavor = "mocha";
+    accent = "blue";
+  };
+
+  boot = {
+    loader.systemd-boot.enable = true;
+    loader.efi.canTouchEfiVariables = true;
+
+    # Plymouth with catppuccin theme
+    plymouth = {
+      enable = true;
+      catppuccin.enable = true;
+    };
+
+    # Enable systemd in initrd for graphical LUKS prompt
+    initrd.systemd.enable = true;
+
+    # Silent boot for clean experience
+    consoleLogLevel = 0;
+    initrd.verbose = false;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "boot.shell_on_fail"
+      "loglevel=3"
+      "rd.systemd.show_status=false"
+      "rd.udev.log_level=3"
+      "udev.log_priority=3"
+    ];
+  };
 
   networking.networkmanager.enable = true;
 

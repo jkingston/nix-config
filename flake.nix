@@ -8,9 +8,11 @@
 
     stylix.url = "github:nix-community/stylix/release-25.05";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
+
+    catppuccin.url = "github:catppuccin/nix/v1.1.0";
   };
 
-  outputs = { self, nixpkgs, home-manager, stylix, ... }:
+  outputs = { self, nixpkgs, home-manager, stylix, catppuccin, ... }:
   let
     system = "x86_64-linux";
     username = "jack";
@@ -35,6 +37,7 @@
 
         modules = [
           stylix.nixosModules.stylix
+          catppuccin.nixosModules.catppuccin
           ./hosts/${name}/default.nix
 
           # home-manager as a NixOS module
@@ -42,7 +45,12 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.${username} = import ./users/default-user.nix;
+            home-manager.users.${username} = {
+              imports = [
+                catppuccin.homeManagerModules.catppuccin
+                ./users/default-user.nix
+              ];
+            };
             home-manager.extraSpecialArgs = {
               inherit hostCfg username;
             };
