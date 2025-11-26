@@ -47,7 +47,7 @@
             home-manager.useUserPackages = true;
             home-manager.users.${username} = {
               imports = [
-                catppuccin.homeManagerModules.catppuccin
+                catppuccin.homeModules.catppuccin
                 ./users/default-user.nix
               ];
             };
