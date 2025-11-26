@@ -15,18 +15,19 @@
   ];
 
   boot = {
-    initrd.availableKernelModules = [
-      "xhci_pci"
-      "nvme"
-      "usb_storage"
-      "sd_mod"
-    ];
-    initrd.kernelModules = [ ];
+    initrd = {
+      availableKernelModules = [
+        "xhci_pci"
+        "nvme"
+        "usb_storage"
+        "sd_mod"
+      ];
+      kernelModules = [ ];
+      luks.devices."luks-392c30b9-a5af-4e85-9806-88fe432485ff".device =
+        "/dev/disk/by-uuid/392c30b9-a5af-4e85-9806-88fe432485ff";
+    };
     kernelModules = [ "kvm-intel" ];
     extraModulePackages = [ ];
-
-    initrd.luks.devices."luks-392c30b9-a5af-4e85-9806-88fe432485ff".device =
-      "/dev/disk/by-uuid/392c30b9-a5af-4e85-9806-88fe432485ff";
   };
 
   fileSystems."/" = {
