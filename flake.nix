@@ -10,13 +10,15 @@
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
     catppuccin.url = "github:catppuccin/nix/release-25.05";
+    catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Walker launcher
     elephant.url = "github:abenz1267/elephant";
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-    };
+    elephant.inputs.nixpkgs.follows = "nixpkgs";
+
+    walker.url = "github:abenz1267/walker";
+    walker.inputs.nixpkgs.follows = "nixpkgs";
+    walker.inputs.elephant.follows = "elephant";
   };
 
   outputs =
