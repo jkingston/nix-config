@@ -181,18 +181,43 @@
       ];
 
       general = {
-        gaps_in = 8;
-        gaps_out = 16;
-        border_size = 2;
+        gaps_in = 4;
+        gaps_out = 8;
+        border_size = 1;
+        "col.active_border" = "rgba(89b4facc)";
+        "col.inactive_border" = "rgba(31324466)";
       };
 
       decoration = {
-        rounding = 12;
+        rounding = 8;
+        active_opacity = 1.0;
+        inactive_opacity = 0.95;
+
         blur = {
           enabled = true;
-          size = 6;
+          size = 4;
           passes = 2;
+          new_optimizations = true;
         };
+
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = "rgba(1e1e2e40)";
+        };
+      };
+
+      animations = {
+        enabled = true;
+        bezier = "ease, 0.25, 0.1, 0.25, 1";
+
+        animation = [
+          "windows, 1, 3, ease, slide"
+          "windowsOut, 1, 3, ease, popin 80%"
+          "fade, 1, 3, ease"
+          "workspaces, 1, 3, ease, slide"
+        ];
       };
     };
   };
