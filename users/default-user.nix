@@ -9,14 +9,11 @@ in {
   home.stateVersion = "25.05";
 
   # Catppuccin - primary theming for home-manager apps
+  # Note: mako and cursors options don't exist in v1.1.0, configured separately
   catppuccin = {
     enable = true;
     flavor = "mocha";
     accent = "blue";
-
-    # Disable mako - the catppuccin module uses deprecated extraConfig API
-    # Colors are applied directly in modules/home/ui.nix instead
-    mako.enable = false;
   };
 
   # Catppuccin cursors (configured via home.pointerCursor since catppuccin.cursors
