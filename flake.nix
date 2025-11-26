@@ -45,7 +45,12 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.${username} = import ./users/default-user.nix;
+            home-manager.users.${username} = {
+              imports = [
+                catppuccin.homeManagerModules.catppuccin
+                ./users/default-user.nix
+              ];
+            };
             home-manager.extraSpecialArgs = {
               inherit hostCfg username;
             };
