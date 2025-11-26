@@ -273,7 +273,6 @@
         };
 
         theme = {
-          name = "catppuccin_mocha";
           bar = {
             transparent = true;
             outer_spacing = "0.4em";
