@@ -24,14 +24,24 @@
 
   wayland.windowManager.hyprland = {
     enable = true;
+    systemd.enable = false;
+    package = null;
+    portalPackage = null;
 
     # Scaling & monitor layout are passed in from host via users/default-user.nix,
     # so only the SHARED config goes here.
     settings = {
+      input = {
+        kb_layout = "gb";
+	
+	touchpad = {
+	  natural_scroll = true;
+	};
+      };
+
       "$mod" = "SUPER";
 
       exec-once = [
-        "waybar"
         "mako"
       ];
 
@@ -89,9 +99,9 @@
   xdg.configFile."ghostty/config".text = ''
     font-family = JetBrainsMono Nerd Font
     font-size = 11
-    theme = Catppuccin Mocha
+    theme = catppuccin-mocha
 
-    window-decoration = full
+    window-decoration = none
     window-padding-x = 8
     window-padding-y = 8
   '';

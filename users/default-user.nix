@@ -32,52 +32,6 @@ in {
     gtk4.extraConfig = config.gtk.gtk3.extraConfig;
   };
 
-  wayland.windowManager.hyprland = {
-    enable = true;
-    settings = {
-      monitor = [
-        "${monitorName},preferred,auto,${scaleStr}"
-      ];
-
-      "$mod" = "SUPER";
-      exec-once = [ "waybar" "mako" ];
-
-      bind = [
-        "$mod, RETURN, exec, ghostty"
-        "$mod, SPACE,  exec, anyrun"
-        "$mod, Q,      killactive,"
-        "$mod, L,      exec, hyprlock"
-        "$mod, O,      exec, ~/.local/bin/osk-toggle"
-        "$mod, S,      exec, ~/.local/bin/anyrun-clipboard"
-
-        "$mod, H,      movefocus, l"
-        "$mod, J,      movefocus, d"
-        "$mod, K,      movefocus, u"
-        "$mod, L,      movefocus, r"
-
-        "$mod SHIFT, H, movewindow, l"
-        "$mod SHIFT, J, movewindow, d"
-        "$mod SHIFT, K, movewindow, u"
-        "$mod SHIFT, L, movewindow, r"
-      ];
-
-      general = {
-        gaps_in = 8;
-        gaps_out = 16;
-        border_size = 2;
-      };
-
-      decoration = {
-        rounding = 12;
-        blur = {
-          enabled = true;
-          size = 6;
-          passes = 2;
-        };
-      };
-    };
-  };
-
   ########################
   ## Shared UI / tools
   ########################

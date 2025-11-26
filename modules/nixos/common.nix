@@ -8,8 +8,25 @@
   console.keyMap = "uk";
 
   services.xserver.enable = false;
-  services.xserver.desktopManager.gnome.enable = false;
-  services.xserver.displayManager.gdm.enable = false;
+  
+  services.greetd = {
+    enable = true;
+    settings = {
+      # auto-login, no menu
+      default_session = {
+        command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
+	user = "jack";
+      };
+    };
+  };
+
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;        # use UWSM, Omarchy-style
+    xwayland.enable = true;
+  };
+
+  programs.uwsm.enable = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
