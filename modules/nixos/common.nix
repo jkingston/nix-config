@@ -28,21 +28,17 @@
 
   programs.uwsm.enable = true;
 
-  # Catppuccin global settings
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-    accent = "blue";
-  };
-
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # Plymouth with catppuccin theme
+    # Plymouth with catppuccin theme (via catppuccin/nix)
     plymouth = {
       enable = true;
-      catppuccin.enable = true;
+      catppuccin = {
+        enable = true;
+        flavor = "mocha";
+      };
     };
 
     # Enable systemd in initrd for graphical LUKS prompt

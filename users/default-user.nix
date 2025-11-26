@@ -8,13 +8,6 @@ in {
   home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.05";
 
-  # Catppuccin home-manager theming
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-    accent = "blue";
-  };
-
   ########################
   ## Display profile (per-host via hostCfg)
   ########################
