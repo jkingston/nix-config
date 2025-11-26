@@ -73,7 +73,17 @@
 
         touchpad = {
           natural_scroll = true;
+          clickfinger_behavior = true;
+          tap-to-click = true;
         };
+      };
+
+      # Touchpad gestures
+      gestures = {
+        workspace_swipe = true;
+        workspace_swipe_fingers = 3;
+        workspace_swipe_distance = 300;
+        workspace_swipe_cancel_ratio = 0.5;
       };
 
       "$mod" = "SUPER";
@@ -83,34 +93,90 @@
         "wl-paste --type image --watch cliphist store"
       ];
 
-      # Keybinds that do NOT depend on monitors
+      # Keybinds (Omarchy-inspired)
       bind = [
+        # Core
         "$mod, RETURN, exec, ghostty"
         "$mod, SPACE, exec, walker"
         "$mod, Q, killactive,"
-        "$mod, L, exec, hyprlock"
 
+        # Window management
+        "$mod, F, fullscreen, 0"
+        "$mod, T, togglefloating,"
+        "$mod, P, pin,"
+        "$mod, M, fullscreen, 1"  # maximize (keeps gaps)
+
+        # Focus (vim-style)
         "$mod, H, movefocus, l"
         "$mod, J, movefocus, d"
         "$mod, K, movefocus, u"
         "$mod, L, movefocus, r"
 
+        # Move windows (vim-style)
         "$mod SHIFT, H, movewindow, l"
         "$mod SHIFT, J, movewindow, d"
         "$mod SHIFT, K, movewindow, u"
         "$mod SHIFT, L, movewindow, r"
 
+        # Resize mode
+        "$mod CTRL, H, resizeactive, -50 0"
+        "$mod CTRL, J, resizeactive, 0 50"
+        "$mod CTRL, K, resizeactive, 0 -50"
+        "$mod CTRL, L, resizeactive, 50 0"
+
+        # Workspaces 1-10
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
         "$mod, 4, workspace, 4"
         "$mod, 5, workspace, 5"
+        "$mod, 6, workspace, 6"
+        "$mod, 7, workspace, 7"
+        "$mod, 8, workspace, 8"
+        "$mod, 9, workspace, 9"
+        "$mod, 0, workspace, 10"
+
+        # Move window to workspace
+        "$mod SHIFT, 1, movetoworkspace, 1"
+        "$mod SHIFT, 2, movetoworkspace, 2"
+        "$mod SHIFT, 3, movetoworkspace, 3"
+        "$mod SHIFT, 4, movetoworkspace, 4"
+        "$mod SHIFT, 5, movetoworkspace, 5"
+        "$mod SHIFT, 6, movetoworkspace, 6"
+        "$mod SHIFT, 7, movetoworkspace, 7"
+        "$mod SHIFT, 8, movetoworkspace, 8"
+        "$mod SHIFT, 9, movetoworkspace, 9"
+        "$mod SHIFT, 0, movetoworkspace, 10"
+
+        # Special workspace (scratchpad)
+        "$mod, grave, togglespecialworkspace, magic"
+        "$mod SHIFT, grave, movetoworkspace, special:magic"
+
+        # Window switcher
+        "$mod, TAB, exec, walker -m windows"
+
+        # Screenshots (grimblast)
+        ", Print, exec, grimblast copy area"
+        "$mod, Print, exec, grimblast copy output"
+        "$mod SHIFT, Print, exec, grimblast copy screen"
 
         # Clipboard picker
-        "$mod, S, exec, ~/.local/bin/walker-clipboard"
+        "$mod, V, exec, ~/.local/bin/walker-clipboard"
+
+        # Lock screen
+        "$mod CTRL, L, exec, hyprlock"
+
+        # Color picker
+        "$mod SHIFT, C, exec, hyprpicker -a"
 
         # OSK
         "$mod, O, exec, ~/.local/bin/osk-toggle"
+      ];
+
+      # Mouse bindings
+      bindm = [
+        "$mod, mouse:272, movewindow"    # Super + left click to drag
+        "$mod, mouse:273, resizewindow"  # Super + right click to resize
       ];
 
       general = {
