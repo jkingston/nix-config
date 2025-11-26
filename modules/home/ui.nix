@@ -232,8 +232,18 @@
     enable = true;
     settings = {
       padding = "10,20,10,20";
-      defaultTimeout = 5000;
-      borderRadius = 10;
+      default-timeout = 5000;
+      border-radius = 10;
+
+      # Catppuccin Mocha colors (applied directly since catppuccin module uses deprecated API)
+      background-color = "#1e1e2e";
+      text-color = "#cdd6f4";
+      border-color = "#89b4fa";
+      progress-color = "over #313244";
+
+      "[urgency=high]" = {
+        border-color = "#fab387";
+      };
     };
   };
 

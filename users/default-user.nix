@@ -14,6 +14,10 @@ in {
     flavor = "mocha";
     accent = "blue";
 
+    # Disable mako - the catppuccin module uses deprecated extraConfig API
+    # Colors are applied directly in modules/home/ui.nix instead
+    mako.enable = false;
+
     # Catppuccin cursors
     cursors = {
       enable = true;
