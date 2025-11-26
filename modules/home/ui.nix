@@ -71,6 +71,7 @@
       "$mod" = "SUPER";
 
       exec-once = [
+        "waybar"
         "mako"
       ];
 
