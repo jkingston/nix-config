@@ -12,13 +12,20 @@
     packages = with pkgs; [
       # Core UI tools
       ghostty
-      waybar
-      mako
       hyprlock
       wvkbd
       cliphist
       wl-clipboard
       localsend
+
+      # HyprPanel dependencies
+      libgtop # for resource monitor
+      bluez # for bluetooth
+      grimblast # for screenshots
+      gpu-screen-recorder # for screen recording
+      hyprpicker # for color picker
+      hyprsunset # for blue light filter
+      btop # for dashboard stats
 
       # Browser / misc
       chromium
@@ -72,7 +79,6 @@
       "$mod" = "SUPER";
 
       exec-once = [
-        "mako"
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
@@ -139,10 +145,94 @@
   '';
 
   ########################################
-  ## Programs (walker, waybar, hyprlock)
+  ## Programs (walker, hyprpanel, hyprlock)
   ########################################
 
   programs = {
+    hyprpanel = {
+      enable = true;
+      systemd.enable = true;
+      hyprland.enable = true;
+      overwrite.enable = true;
+
+      settings = {
+        bar = {
+          launcher = {
+            autoDetectIcon = true;
+            icon = "󱄅";
+          };
+          workspaces = {
+            show_icons = false;
+            showWsIcons = false;
+            show_numbered = true;
+            numbered_active_indicator = "highlight";
+          };
+          windowtitle = {
+            label = true;
+            truncation_size = 30;
+          };
+          network = {
+            showWifiInfo = true;
+            label = false;
+          };
+          bluetooth = {
+            label = false;
+          };
+          volume = {
+            label = false;
+          };
+          battery = {
+            label = true;
+          };
+          clock = {
+            format = "%H:%M";
+          };
+          notifications = {
+            show_total = true;
+          };
+        };
+
+        menus = {
+          clock = {
+            time = {
+              military = true;
+            };
+            weather.enabled = false;
+          };
+          dashboard = {
+            powermenu.avatar.image = "";
+            stats.enable_gpu = false;
+            shortcuts.enabled = false;
+            directories.enabled = false;
+          };
+        };
+
+        theme = {
+          name = "catppuccin_mocha";
+          bar = {
+            transparent = true;
+            outer_spacing = "0.4em";
+            buttons = {
+              radius = "0.5em";
+            };
+          };
+          font = {
+            name = "JetBrainsMono Nerd Font";
+            size = "14px";
+          };
+        };
+
+        # Bar layout
+        "bar.layouts" = {
+          "*" = {
+            left = [ "dashboard" "workspaces" "windowtitle" ];
+            middle = [ "media" ];
+            right = [ "volume" "network" "bluetooth" "battery" "systray" "clock" "notifications" ];
+          };
+        };
+      };
+    };
+
     walker = {
       enable = true;
       runAsService = true;
@@ -323,38 +413,6 @@
       };
     };
 
-    waybar = {
-      enable = true;
-      settings.mainBar = {
-        layer = "top";
-        height = 32;
-        position = "top";
-
-        modules-left = [ "hyprland/workspaces" ];
-        modules-center = [ "clock" ];
-        modules-right = [
-          "pulseaudio"
-          "battery"
-          "network"
-          "tray"
-        ];
-      };
-    };
-
     hyprlock.enable = true;
-  };
-
-  ########################################
-  ## Mako notifications
-  ########################################
-
-  services.mako = {
-    enable = true;
-    # Catppuccin colors applied automatically via catppuccin module
-    settings = {
-      padding = "10,20,10,20";
-      default-timeout = 5000;
-      border-radius = 10;
-    };
   };
 }
