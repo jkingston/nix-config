@@ -224,18 +224,16 @@
 
         # System
         "$mod, ESCAPE, exec, walker -m power" # lock/suspend/restart/shutdown
+
+        # Mouse scroll for workspaces (Omarchy)
+        "$mod, MOUSE_DOWN, workspace, e+1"
+        "$mod, MOUSE_UP, workspace, e-1"
       ];
 
       # Mouse bindings
       bindm = [
         "$mod, mouse:272, movewindow" # Super + left click to drag
         "$mod, mouse:273, resizewindow" # Super + right click to resize
-      ];
-
-      # Mouse scroll for workspaces (Omarchy)
-      bind = [
-        "$mod, MOUSE_DOWN, workspace, e+1"
-        "$mod, MOUSE_UP, workspace, e-1"
       ];
 
       # Media keys (Omarchy-style)
