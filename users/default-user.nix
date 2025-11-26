@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   hostCfg,
   username,
   ...
@@ -20,6 +21,18 @@ in
       QT_AUTO_SCREEN_SCALE_FACTOR = "0";
       QT_SCALE_FACTOR = scaleStr;
     };
+
+    # Bibata cursor with hyprcursor support for HiDPI
+    pointerCursor = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+      gtk.enable = true;
+      hyprcursor = {
+        enable = true;
+        size = 24;
+      };
+    };
   };
 
   # Catppuccin - primary theming for home-manager apps
@@ -27,11 +40,7 @@ in
     enable = true;
     flavor = "mocha";
     accent = "blue";
-
-    cursors = {
-      enable = true;
-      accent = "blue";
-    };
+    # Cursors disabled - using Bibata instead for better hyprcursor support
   };
 
   gtk = {
