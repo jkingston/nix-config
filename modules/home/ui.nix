@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  walker,
   ...
 }:
 
@@ -11,39 +12,75 @@
     packages = with pkgs; [
       # Core UI tools
       ghostty
-      anyrun
-      waybar
-      mako
       hyprlock
       wvkbd
       cliphist
+      wl-clipboard
       localsend
+
+      # HyprPanel dependencies
+      libgtop # for resource monitor
+      bluez # for bluetooth
+      grimblast # for screenshots
+      gpu-screen-recorder # for screen recording
+      hyprpicker # for color picker
+      hyprsunset # for blue light filter
+      btop # for dashboard stats
 
       # Browser / misc
       chromium
+      nautilus # file manager
+
+      # Media control (Omarchy)
+      playerctl
+      brightnessctl
+
+      # Notifications (Omarchy uses mako)
+      mako
+
+      # Dev tools (Omarchy)
+      lazydocker
+
+      # Wallpaper (Variety + swaybg backend)
+      variety
+      swaybg
     ];
 
-    file.".local/bin/osk-toggle" = {
-      text = ''
-        #!/usr/bin/env bash
-        if pgrep -x wvkbd-mobintl >/dev/null; then
-          pkill -x wvkbd-mobintl
-        else
-          wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
-        fi
-      '';
-      executable = true;
-    };
+    file = {
+      # Variety wallpaper setter script for swaybg
+      ".config/variety/scripts/set_wallpaper" = {
+        text = ''
+          #!/usr/bin/env bash
+          # Kill any existing swaybg instance
+          pkill swaybg 2>/dev/null
+          # Set new wallpaper
+          swaybg -i "$1" -m fill &
+        '';
+        executable = true;
+      };
 
-    file.".local/bin/anyrun-clipboard" = {
-      text = ''
-        #!/usr/bin/env bash
-        cliphist list \
-          | anyrun --plugins libstdin.so \
-          | cliphist decode \
-          | wl-copy
-      '';
-      executable = true;
+      ".local/bin/osk-toggle" = {
+        text = ''
+          #!/usr/bin/env bash
+          if pgrep -x wvkbd-mobintl >/dev/null; then
+            pkill -x wvkbd-mobintl
+          else
+            wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
+          fi
+        '';
+        executable = true;
+      };
+
+      ".local/bin/walker-clipboard" = {
+        text = ''
+          #!/usr/bin/env bash
+          cliphist list \
+            | walker --dmenu \
+            | cliphist decode \
+            | wl-copy
+        '';
+        executable = true;
+      };
     };
   };
 
@@ -65,59 +102,197 @@
 
         touchpad = {
           natural_scroll = true;
+          clickfinger_behavior = true;
+          tap-to-click = true;
         };
+      };
+
+      # Touchpad gestures
+      gestures = {
+        workspace_swipe = true;
+        workspace_swipe_fingers = 3;
+        workspace_swipe_distance = 300;
+        workspace_swipe_cancel_ratio = 0.5;
       };
 
       "$mod" = "SUPER";
 
       exec-once = [
-        "waybar"
-        "mako"
+        "hyprpanel"
+        "mako" # notifications daemon
+        "variety" # wallpaper manager (auto-restores last wallpaper)
+        "wl-paste --watch cliphist store"
+        "wl-paste --type image --watch cliphist store"
       ];
 
-      # Keybinds that do NOT depend on monitors
+      # Keybinds (Omarchy - from official manual)
       bind = [
+        # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
-        "$mod, SPACE, exec, anyrun"
-        "$mod, Q, killactive,"
-        "$mod, L, exec, hyprlock"
+        "$mod, SPACE, exec, walker"
+        "$mod SHIFT, B, exec, chromium"
+        "$mod SHIFT, N, exec, ghostty -e nvim"
+        "$mod SHIFT, T, exec, ghostty -e btop"
+        "$mod SHIFT, F, exec, nautilus" # file manager
+        "$mod SHIFT, D, exec, ghostty -e lazydocker"
+        "$mod CTRL, S, exec, localsend" # share menu
 
-        "$mod, H, movefocus, l"
-        "$mod, J, movefocus, d"
-        "$mod, K, movefocus, u"
-        "$mod, L, movefocus, r"
+        # Window management
+        "$mod, W, killactive,"
+        "CTRL ALT, DELETE, exec, hyprctl dispatch closewindow address:*" # close all
+        "$mod, T, togglefloating," # toggle tiling/floating
+        "$mod, O, pin," # sticky'n'floating (pin)
+        "$mod, F, fullscreen, 0"
+        "$mod ALT, F, fullscreen, 1" # full width (maximize)
+        "$mod, G, togglegroup," # window grouping
+        "$mod ALT, G, moveoutofgroup," # move out of group
+        "$mod ALT, TAB, changegroupactive," # cycle group windows
 
-        "$mod SHIFT, H, movewindow, l"
-        "$mod SHIFT, J, movewindow, d"
-        "$mod SHIFT, K, movewindow, u"
-        "$mod SHIFT, L, movewindow, r"
+        # Focus (arrow keys - Omarchy)
+        "$mod, LEFT, movefocus, l"
+        "$mod, RIGHT, movefocus, r"
+        "$mod, UP, movefocus, u"
+        "$mod, DOWN, movefocus, d"
 
+        # Swap windows (Omarchy)
+        "$mod SHIFT, LEFT, swapwindow, l"
+        "$mod SHIFT, RIGHT, swapwindow, r"
+        "$mod SHIFT, UP, swapwindow, u"
+        "$mod SHIFT, DOWN, swapwindow, d"
+
+        # Resize (Omarchy: Equal=grow left, Minus=grow right)
+        "$mod, EQUAL, resizeactive, -100 0"
+        "$mod, MINUS, resizeactive, 100 0"
+        "$mod SHIFT, EQUAL, resizeactive, 0 100"
+        "$mod SHIFT, MINUS, resizeactive, 0 -100"
+
+        # Workspaces 1-10
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
         "$mod, 4, workspace, 4"
         "$mod, 5, workspace, 5"
+        "$mod, 6, workspace, 6"
+        "$mod, 7, workspace, 7"
+        "$mod, 8, workspace, 8"
+        "$mod, 9, workspace, 9"
+        "$mod, 0, workspace, 10"
 
-        # Clipboard picker
-        "$mod, S, exec, ~/.local/bin/anyrun-clipboard"
+        # Move window to workspace
+        "$mod SHIFT, 1, movetoworkspace, 1"
+        "$mod SHIFT, 2, movetoworkspace, 2"
+        "$mod SHIFT, 3, movetoworkspace, 3"
+        "$mod SHIFT, 4, movetoworkspace, 4"
+        "$mod SHIFT, 5, movetoworkspace, 5"
+        "$mod SHIFT, 6, movetoworkspace, 6"
+        "$mod SHIFT, 7, movetoworkspace, 7"
+        "$mod SHIFT, 8, movetoworkspace, 8"
+        "$mod SHIFT, 9, movetoworkspace, 9"
+        "$mod SHIFT, 0, movetoworkspace, 10"
 
-        # OSK
-        "$mod, O, exec, ~/.local/bin/osk-toggle"
+        # Workspace navigation (Omarchy)
+        "$mod, TAB, workspace, e+1"
+        "$mod SHIFT, TAB, workspace, e-1"
+        "$mod CTRL, TAB, workspace, previous"
+
+        # Scratchpad (Omarchy uses S, not grave)
+        "$mod, S, togglespecialworkspace, magic"
+        "$mod ALT, S, movetoworkspace, special:magic"
+
+        # Screenshots (Omarchy)
+        ", Print, exec, grimblast edit area" # screenshot with editing
+        "SHIFT, Print, exec, grimblast copy screen" # screenshot to clipboard
+        "$mod, Print, exec, hyprpicker -a" # color picker
+
+        # Clipboard (Omarchy universal)
+        "$mod, C, exec, wl-copy"
+        "$mod, V, exec, wl-paste"
+        "$mod CTRL, V, exec, ~/.local/bin/walker-clipboard" # clipboard manager
+
+        # Toggles
+        "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
+        "$mod CTRL, N, exec, hyprsunset" # toggle nightlight
+        "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 hyprpanel" # toggle top bar
+        "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
+
+        # Notifications (Omarchy uses comma)
+        "$mod, COMMA, exec, makoctl dismiss"
+        "$mod SHIFT, COMMA, exec, makoctl dismiss --all"
+        "$mod CTRL, COMMA, exec, makoctl mode -t do-not-disturb"
+        "$mod ALT, COMMA, exec, makoctl invoke"
+
+        # Emoji picker
+        "$mod CTRL, E, exec, walker -m symbols"
+
+        # System
+        "$mod, ESCAPE, exec, walker -m power" # lock/suspend/restart/shutdown
+
+        # Mouse scroll for workspaces (Omarchy)
+        "$mod, MOUSE_DOWN, workspace, e+1"
+        "$mod, MOUSE_UP, workspace, e-1"
+      ];
+
+      # Mouse bindings
+      bindm = [
+        "$mod, mouse:272, movewindow" # Super + left click to drag
+        "$mod, mouse:273, resizewindow" # Super + right click to resize
+      ];
+
+      # Media keys (Omarchy-style)
+      bindel = [
+        ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        ", XF86MonBrightnessUp, exec, brightnessctl set 5%+"
+        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+      ];
+
+      bindl = [
+        ", XF86AudioNext, exec, playerctl next"
+        ", XF86AudioPrev, exec, playerctl previous"
+        ", XF86AudioPlay, exec, playerctl play-pause"
+        ", XF86AudioPause, exec, playerctl play-pause"
       ];
 
       general = {
-        gaps_in = 8;
-        gaps_out = 16;
-        border_size = 2;
+        gaps_in = 4;
+        gaps_out = 8;
+        border_size = 1;
+        "col.active_border" = "rgba(89b4facc)";
+        "col.inactive_border" = "rgba(31324466)";
       };
 
       decoration = {
-        rounding = 12;
+        rounding = 8;
+        active_opacity = 1.0;
+        inactive_opacity = 0.95;
+
         blur = {
           enabled = true;
-          size = 6;
+          size = 4;
           passes = 2;
+          new_optimizations = true;
         };
+
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = "rgba(1e1e2e40)";
+        };
+      };
+
+      animations = {
+        enabled = true;
+        bezier = "ease, 0.25, 0.1, 0.25, 1";
+
+        animation = [
+          "windows, 1, 3, ease, slide"
+          "windowsOut, 1, 3, ease, popin 80%"
+          "fade, 1, 3, ease"
+          "workspaces, 1, 3, ease, slide"
+        ];
       };
     };
   };
@@ -137,145 +312,221 @@
   '';
 
   ########################################
-  ## Programs (anyrun, waybar, hyprlock)
+  ## Programs (walker, hyprpanel, hyprlock)
   ########################################
 
   programs = {
-    anyrun = {
+    hyprpanel = {
       enable = true;
+      systemd.enable = true;
 
-      config = {
-        # Center position
-        x = {
-          fraction = 0.5;
+      settings = {
+        bar = {
+          launcher = {
+            autoDetectIcon = true;
+            icon = "󱄅";
+          };
+          workspaces = {
+            show_icons = false;
+            showWsIcons = false;
+            show_numbered = true;
+            numbered_active_indicator = "highlight";
+          };
+          windowtitle = {
+            label = true;
+            truncation_size = 30;
+          };
+          network = {
+            showWifiInfo = true;
+            label = false;
+          };
+          bluetooth = {
+            label = false;
+          };
+          volume = {
+            label = false;
+          };
+          battery = {
+            label = true;
+          };
+          clock = {
+            format = "%H:%M";
+          };
+          notifications = {
+            show_total = true;
+          };
         };
-        y = {
-          fraction = 0.25;
+
+        menus = {
+          clock = {
+            time = {
+              military = true;
+            };
+            weather.enabled = false;
+          };
+          dashboard = {
+            powermenu.avatar.image = "";
+            stats.enable_gpu = false;
+            shortcuts.enabled = false;
+            directories.enabled = false;
+          };
         };
-        width = {
-          fraction = 0.38;
+
+        theme = {
+          bar = {
+            transparent = true;
+            outer_spacing = "0.4em";
+            buttons = {
+              radius = "0.5em";
+            };
+          };
+          font = {
+            name = "JetBrainsMono Nerd Font";
+            size = "14px";
+          };
         };
 
-        hideIcons = false;
-        ignoreExclusiveZones = false;
-        layer = "overlay";
-        hidePluginInfo = false;
-        closeOnClick = true;
-        showResultsImmediately = true;
-
-        plugins = [
-          "${pkgs.anyrun}/lib/libapplications.so"
-          "${pkgs.anyrun}/lib/libsymbols.so"
-          "${pkgs.anyrun}/lib/libwebsearch.so"
-          "${pkgs.anyrun}/lib/libstdin.so"
-          "${pkgs.anyrun}/lib/librink.so"
-          "${pkgs.anyrun}/lib/libkidex.so"
-          "${pkgs.anyrun}/lib/libshell.so"
-        ];
-      };
-
-      extraCss = ''
-        window { background-color: transparent; }
-
-        .main {
-          background-color: rgba(17, 17, 27, 0.94);
-          border-radius: 18px;
-          padding: 12px;
-        }
-
-        entry, textview {
-          background: rgba(24, 24, 37, 0.9);
-          border-radius: 12px;
-          padding: 8px 10px;
-          font-size: 14pt;
-          color: #cdd6f4;
-        }
-
-        .matches {
-          margin-top: 6px;
-          gap: 4px;
-        }
-
-        .match {
-          padding: 6px 8px;
-          border-radius: 10px;
-        }
-
-        .match:selected {
-          background: rgba(137, 180, 250, 0.22);
-        }
-      '';
-
-      extraConfigFiles = {
-        "applications.ron".text = ''
-          Config(
-            desktop_actions: true,
-            max_entries: 8,
-            terminal: Some("ghostty"),
-          )
-        '';
-
-        "symbols.ron".text = ''
-          Config(
-            prefix: ":",
-            max_entries: 10,
-          )
-        '';
-
-        "websearch.ron".text = ''
-          Config(
-            prefix: "?",
-            engines: [DuckDuckGo],
-          )
-        '';
-
-        "shell.ron".text = ''
-          Config(
-            prefix: ":sh",
-            shell: None,
-          )
-        '';
-
-        "kidex.ron".text = ''
-          Config(
-            max_entries: 10,
-          )
-        '';
+        # Bar layout
+        "bar.layouts" = {
+          "*" = {
+            left = [
+              "dashboard"
+              "workspaces"
+              "windowtitle"
+            ];
+            middle = [ "media" ];
+            right = [
+              "volume"
+              "network"
+              "bluetooth"
+              "battery"
+              "systray"
+              "clock"
+              "notifications"
+            ];
+          };
+        };
       };
     };
 
-    waybar = {
+    walker = {
       enable = true;
-      settings.mainBar = {
-        layer = "top";
-        height = 32;
-        position = "top";
+      runAsService = true;
 
-        modules-left = [ "hyprland/workspaces" ];
-        modules-center = [ "clock" ];
-        modules-right = [
-          "pulseaudio"
-          "battery"
-          "network"
-          "tray"
-        ];
+      config = {
+        placeholder = "Search...";
+        terminal = "ghostty";
+        ignore_mouse = false;
+        orientation = "vertical";
+        enable_typeahead = true;
+        show_initial_entries = true;
+        theme = "catppuccin";
+
+        builtins = {
+          applications = {
+            weight = 5;
+            name = "applications";
+            placeholder = "Applications";
+            prioritize_new = true;
+            actions = true;
+          };
+
+          clipboard = {
+            switcher_only = true;
+            name = "clipboard";
+            placeholder = "Clipboard";
+            weight = 5;
+            max_entries = 10;
+          };
+
+          calc = {
+            weight = 5;
+            name = "calc";
+            placeholder = "Calculator";
+            min_chars = 0;
+          };
+
+          websearch = {
+            weight = 1;
+            name = "websearch";
+            placeholder = "Search the web";
+            engines = [ "duckduckgo" ];
+          };
+
+          hyprland = {
+            weight = 3;
+            name = "windows";
+            placeholder = "Windows";
+            context_aware = true;
+          };
+
+          symbols = {
+            weight = 3;
+            name = "symbols";
+            placeholder = "Symbols";
+          };
+
+          runner = {
+            weight = 1;
+            name = "runner";
+            placeholder = "Run command";
+          };
+
+          finder = {
+            weight = 3;
+            name = "finder";
+            placeholder = "Files";
+            switcher_only = true;
+          };
+        };
+      };
+
+      # Custom Catppuccin theme
+      themes = {
+        catppuccin = {
+          style = ''
+            @define-color background rgba(17, 17, 27, 0.94);
+            @define-color foreground #cdd6f4;
+            @define-color surface0 #313244;
+            @define-color blue #89b4fa;
+            @define-color lavender #b4befe;
+            @define-color subtext0 #a6adc8;
+
+            #window { background: transparent; }
+
+            #box {
+              background: @background;
+              border-radius: 18px;
+              padding: 12px;
+            }
+
+            #search {
+              background: @surface0;
+              border-radius: 12px;
+              padding: 10px 14px;
+              color: @foreground;
+              font-size: 16px;
+            }
+
+            #search:focus { border: 1px solid @blue; }
+
+            #list { margin-top: 8px; }
+
+            #list row {
+              padding: 8px 10px;
+              border-radius: 10px;
+              margin: 2px 0;
+            }
+
+            #list row:selected { background: alpha(@blue, 0.22); }
+            #list row label { color: @foreground; }
+            #list row:selected label { color: @lavender; }
+            .activationlabel { color: @subtext0; font-size: 12px; }
+          '';
+        };
       };
     };
 
     hyprlock.enable = true;
-  };
-
-  ########################################
-  ## Mako notifications
-  ########################################
-
-  services.mako = {
-    enable = true;
-    # Catppuccin colors applied automatically via catppuccin module
-    settings = {
-      padding = "10,20,10,20";
-      default-timeout = 5000;
-      border-radius = 10;
-    };
   };
 }

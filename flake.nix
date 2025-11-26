@@ -3,13 +3,32 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-    home-manager.url = "github:nix-community/home-manager/release-25.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    stylix.url = "github:nix-community/stylix/release-25.05";
-    stylix.inputs.nixpkgs.follows = "nixpkgs";
+    stylix = {
+      url = "github:nix-community/stylix/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    catppuccin.url = "github:catppuccin/nix/release-25.05";
+    catppuccin = {
+      url = "github:catppuccin/nix/release-25.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Walker launcher
+    elephant = {
+      url = "github:abenz1267/elephant";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
   outputs =
@@ -18,6 +37,7 @@
       home-manager,
       stylix,
       catppuccin,
+      walker,
       ...
     }:
     let
@@ -40,7 +60,12 @@
 
           # Make hostCfg & username available to all modules
           specialArgs = {
-            inherit stylix username hostCfg;
+            inherit
+              stylix
+              username
+              hostCfg
+              walker
+              ;
           };
 
           modules = [
@@ -57,11 +82,12 @@
                 users.${username} = {
                   imports = [
                     catppuccin.homeModules.catppuccin
+                    walker.homeManagerModules.default
                     ./users/default-user.nix
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username;
+                  inherit hostCfg username walker;
                 };
               };
             }
