@@ -105,7 +105,7 @@
         "$mod, F, fullscreen, 0"
         "$mod, T, togglefloating,"
         "$mod, P, pin,"
-        "$mod, M, fullscreen, 1"  # maximize (keeps gaps)
+        "$mod, M, fullscreen, 1" # maximize (keeps gaps)
 
         # Focus (vim-style)
         "$mod, H, movefocus, l"
@@ -176,8 +176,8 @@
 
       # Mouse bindings
       bindm = [
-        "$mod, mouse:272, movewindow"    # Super + left click to drag
-        "$mod, mouse:273, resizewindow"  # Super + right click to resize
+        "$mod, mouse:272, movewindow" # Super + left click to drag
+        "$mod, mouse:273, resizewindow" # Super + right click to resize
       ];
 
       general = {
@@ -289,9 +289,21 @@
         # Bar layout
         "bar.layouts" = {
           "*" = {
-            left = [ "dashboard" "workspaces" "windowtitle" ];
+            left = [
+              "dashboard"
+              "workspaces"
+              "windowtitle"
+            ];
             middle = [ "media" ];
-            right = [ "volume" "network" "bluetooth" "battery" "systray" "clock" "notifications" ];
+            right = [
+              "volume"
+              "network"
+              "bluetooth"
+              "battery"
+              "systray"
+              "clock"
+              "notifications"
+            ];
           };
         };
       };

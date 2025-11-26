@@ -50,7 +50,12 @@
 
           # Make hostCfg & username available to all modules
           specialArgs = {
-            inherit stylix username hostCfg walker;
+            inherit
+              stylix
+              username
+              hostCfg
+              walker
+              ;
           };
 
           modules = [
