@@ -46,39 +46,41 @@
       swaybg
     ];
 
-    # Variety wallpaper setter script for swaybg
-    file.".config/variety/scripts/set_wallpaper" = {
-      text = ''
-        #!/usr/bin/env bash
-        # Kill any existing swaybg instance
-        pkill swaybg 2>/dev/null
-        # Set new wallpaper
-        swaybg -i "$1" -m fill &
-      '';
-      executable = true;
-    };
+    file = {
+      # Variety wallpaper setter script for swaybg
+      ".config/variety/scripts/set_wallpaper" = {
+        text = ''
+          #!/usr/bin/env bash
+          # Kill any existing swaybg instance
+          pkill swaybg 2>/dev/null
+          # Set new wallpaper
+          swaybg -i "$1" -m fill &
+        '';
+        executable = true;
+      };
 
-    file.".local/bin/osk-toggle" = {
-      text = ''
-        #!/usr/bin/env bash
-        if pgrep -x wvkbd-mobintl >/dev/null; then
-          pkill -x wvkbd-mobintl
-        else
-          wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
-        fi
-      '';
-      executable = true;
-    };
+      ".local/bin/osk-toggle" = {
+        text = ''
+          #!/usr/bin/env bash
+          if pgrep -x wvkbd-mobintl >/dev/null; then
+            pkill -x wvkbd-mobintl
+          else
+            wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
+          fi
+        '';
+        executable = true;
+      };
 
-    file.".local/bin/walker-clipboard" = {
-      text = ''
-        #!/usr/bin/env bash
-        cliphist list \
-          | walker --dmenu \
-          | cliphist decode \
-          | wl-copy
-      '';
-      executable = true;
+      ".local/bin/walker-clipboard" = {
+        text = ''
+          #!/usr/bin/env bash
+          cliphist list \
+            | walker --dmenu \
+            | cliphist decode \
+            | wl-copy
+        '';
+        executable = true;
+      };
     };
   };
 
