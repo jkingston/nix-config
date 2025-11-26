@@ -1,52 +1,72 @@
-{ config, pkgs, stylix, hostCfg, ... }:
+{
+  pkgs,
+  stylix,
+  ...
+}:
 
 {
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   time.timeZone = "Europe/London";
   i18n.defaultLocale = "en_GB.UTF-8";
   console.keyMap = "uk";
 
-  services.xserver.enable = false;
-  
-  services.greetd = {
-    enable = true;
-    settings = {
-      # auto-login, no menu
-      default_session = {
-        command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-	user = "jack";
+  services = {
+    xserver.enable = false;
+
+    greetd = {
+      enable = true;
+      settings = {
+        # auto-login, no menu
+        default_session = {
+          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
+          user = "jack";
+        };
       };
     };
+
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+    };
+
+    libinput.enable = true;
+    upower.enable = true;
+    dbus.packages = [ pkgs.iio-sensor-proxy ];
   };
 
-  programs.hyprland = {
-    enable = true;
-    withUWSM = true;        # use UWSM, Omarchy-style
-    xwayland.enable = true;
-  };
+  programs = {
+    hyprland = {
+      enable = true;
+      withUWSM = true; # use UWSM, Omarchy-style
+      xwayland.enable = true;
+    };
 
-  programs.uwsm.enable = true;
+    uwsm.enable = true;
+  };
 
   # Catppuccin - primary theming system
   catppuccin = {
     enable = true;
     flavor = "mocha";
     accent = "blue";
+
+    plymouth = {
+      enable = true;
+      flavor = "mocha";
+    };
   };
 
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # Plymouth with catppuccin theme (via catppuccin/nix)
-    plymouth = {
-      enable = true;
-      catppuccin = {
-        enable = true;
-        flavor = "mocha";
-      };
-    };
+    # Plymouth boot splash
+    plymouth.enable = true;
 
     # Enable systemd in initrd for graphical LUKS prompt
     initrd.systemd.enable = true;
@@ -65,33 +85,33 @@
     ];
   };
 
-  networking.networkmanager.enable = true;
+  networking = {
+    networkmanager.enable = true;
 
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    pulse.enable = true;
-  };
-
-  services.libinput.enable = true;
-  services.upower.enable = true;
-  services.dbus.packages = [ pkgs.iio-sensor-proxy ];
-
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [ 22 53317 ];
-    allowedUDPPorts = [ 53317 ];
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [
+        22
+        53317
+      ];
+      allowedUDPPorts = [ 53317 ];
+    };
   };
 
   environment.systemPackages = with pkgs; [
-    git wget curl
-    wl-clipboard grim slurp swappy
+    git
+    wget
+    curl
+    wl-clipboard
+    grim
+    slurp
+    swappy
   ];
 
   # Stylix - only for wallpaper and fonts (catppuccin handles the rest)
   stylix = {
     enable = true;
-    autoEnable = false;  # Don't auto-theme apps - catppuccin does that
+    autoEnable = false; # Don't auto-theme apps - catppuccin does that
 
     # Color scheme still needed for Stylix internals
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
@@ -113,4 +133,3 @@
 
   system.stateVersion = "25.05";
 }
-

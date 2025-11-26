@@ -1,12 +1,26 @@
-{ config, pkgs, lib, hostCfg, username, ... }:
+{
+  config,
+  hostCfg,
+  username,
+  ...
+}:
 
 let
   scaleStr = builtins.toString hostCfg.scale;
-  monitorName = hostCfg.internalMonitor;
-in {
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "25.05";
+in
+{
+  home = {
+    inherit username;
+    homeDirectory = "/home/${username}";
+    stateVersion = "25.05";
+
+    sessionVariables = {
+      GDK_SCALE = "1";
+      GDK_DPI_SCALE = scaleStr;
+      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
+      QT_SCALE_FACTOR = scaleStr;
+    };
+  };
 
   # Catppuccin - primary theming for home-manager apps
   catppuccin = {
@@ -14,22 +28,10 @@ in {
     flavor = "mocha";
     accent = "blue";
 
-    # Catppuccin cursors
     cursors = {
       enable = true;
       accent = "blue";
     };
-  };
-
-  ########################
-  ## Display profile (per-host via hostCfg)
-  ########################
-
-  home.sessionVariables = {
-    GDK_SCALE = "1";
-    GDK_DPI_SCALE = scaleStr;
-    QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-    QT_SCALE_FACTOR = scaleStr;
   };
 
   gtk = {
@@ -38,16 +40,13 @@ in {
     gtk3.extraConfig =
       let
         dpi = 96.0 * hostCfg.scale * 1000.0;
-      in {
+      in
+      {
         "gtk-xft-dpi" = builtins.toString (builtins.floor dpi);
       };
 
     gtk4.extraConfig = config.gtk.gtk3.extraConfig;
   };
-
-  ########################
-  ## Shared UI / tools
-  ########################
 
   imports = [
     ../modules/home/ui.nix
@@ -55,4 +54,3 @@ in {
     ../modules/home/shell.nix
   ];
 }
-

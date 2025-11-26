@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+_:
 
 {
   programs.zsh = {
@@ -11,7 +11,11 @@
     oh-my-zsh = {
       enable = true;
       theme = "agnoster";
-      plugins = [ "git" "sudo" "direnv" ];
+      plugins = [
+        "git"
+        "sudo"
+        "direnv"
+      ];
     };
 
     shellAliases = {
@@ -22,11 +26,9 @@
       rebuild = "sudo nixos-rebuild switch --flake ~/nix-config";
     };
 
-
     # Optionally set as default shell:
     initContent = ''
       export EDITOR="nvim"
     '';
   };
 }
-
