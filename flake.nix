@@ -10,6 +10,13 @@
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
     catppuccin.url = "github:catppuccin/nix/release-25.05";
+
+    # Walker launcher
+    elephant.url = "github:abenz1267/elephant";
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
   outputs =
@@ -18,6 +25,7 @@
       home-manager,
       stylix,
       catppuccin,
+      walker,
       ...
     }:
     let
@@ -40,7 +48,7 @@
 
           # Make hostCfg & username available to all modules
           specialArgs = {
-            inherit stylix username hostCfg;
+            inherit stylix username hostCfg walker;
           };
 
           modules = [
@@ -57,11 +65,12 @@
                 users.${username} = {
                   imports = [
                     catppuccin.homeModules.catppuccin
+                    walker.homeManagerModules.default
                     ./users/default-user.nix
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username;
+                  inherit hostCfg username walker;
                 };
               };
             }
