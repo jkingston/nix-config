@@ -22,10 +22,10 @@ in
       QT_SCALE_FACTOR = scaleStr;
     };
 
-    # Bibata cursor with hyprcursor support for HiDPI
+    # Phinger cursor with hyprcursor support for HiDPI
     pointerCursor = {
-      name = "Bibata-Modern-Classic";
-      package = pkgs.bibata-cursors;
+      name = "phinger-cursors-dark";
+      package = pkgs.phinger-cursors;
       size = 24;
       gtk.enable = true;
       hyprcursor = {
