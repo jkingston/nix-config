@@ -16,26 +16,40 @@
   i18n.defaultLocale = "en_GB.UTF-8";
   console.keyMap = "uk";
 
-  services.xserver.enable = false;
+  services = {
+    xserver.enable = false;
 
-  services.greetd = {
-    enable = true;
-    settings = {
-      # auto-login, no menu
-      default_session = {
-        command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-        user = "jack";
+    greetd = {
+      enable = true;
+      settings = {
+        # auto-login, no menu
+        default_session = {
+          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
+          user = "jack";
+        };
       };
     };
+
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+    };
+
+    libinput.enable = true;
+    upower.enable = true;
+    dbus.packages = [ pkgs.iio-sensor-proxy ];
   };
 
-  programs.hyprland = {
-    enable = true;
-    withUWSM = true; # use UWSM, Omarchy-style
-    xwayland.enable = true;
-  };
+  programs = {
+    hyprland = {
+      enable = true;
+      withUWSM = true; # use UWSM, Omarchy-style
+      xwayland.enable = true;
+    };
 
-  programs.uwsm.enable = true;
+    uwsm.enable = true;
+  };
 
   # Catppuccin - primary theming system
   catppuccin = {
@@ -73,25 +87,17 @@
     ];
   };
 
-  networking.networkmanager.enable = true;
+  networking = {
+    networkmanager.enable = true;
 
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    pulse.enable = true;
-  };
-
-  services.libinput.enable = true;
-  services.upower.enable = true;
-  services.dbus.packages = [ pkgs.iio-sensor-proxy ];
-
-  networking.firewall = {
-    enable = true;
-    allowedTCPPorts = [
-      22
-      53317
-    ];
-    allowedUDPPorts = [ 53317 ];
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [
+        22
+        53317
+      ];
+      allowedUDPPorts = [ 53317 ];
+    };
   };
 
   environment.systemPackages = with pkgs; [

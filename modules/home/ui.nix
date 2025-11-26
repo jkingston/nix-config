@@ -8,20 +8,45 @@
 {
   imports = [ ];
 
-  home.packages = with pkgs; [
-    # Core UI tools
-    ghostty
-    anyrun
-    waybar
-    mako
-    hyprlock
-    wvkbd
-    cliphist
-    localsend
+  home = {
+    packages = with pkgs; [
+      # Core UI tools
+      ghostty
+      anyrun
+      waybar
+      mako
+      hyprlock
+      wvkbd
+      cliphist
+      localsend
 
-    # Browser / misc
-    chromium
-  ];
+      # Browser / misc
+      chromium
+    ];
+
+    file.".local/bin/osk-toggle" = {
+      text = ''
+        #!/usr/bin/env bash
+        if pgrep -x wvkbd-mobintl >/dev/null; then
+          pkill -x wvkbd-mobintl
+        else
+          wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
+        fi
+      '';
+      executable = true;
+    };
+
+    file.".local/bin/anyrun-clipboard" = {
+      text = ''
+        #!/usr/bin/env bash
+        cliphist list \
+          | anyrun --plugins libstdin.so \
+          | cliphist decode \
+          | wl-copy
+      '';
+      executable = true;
+    };
+  };
 
   ########################################
   ## Hyprland (shared settings)
@@ -112,132 +137,132 @@
   '';
 
   ########################################
-  ## anyrun (launcher)
+  ## Programs (anyrun, waybar, hyprlock)
   ########################################
 
-  programs.anyrun = {
-    enable = true;
+  programs = {
+    anyrun = {
+      enable = true;
 
-    config = {
-      # Center position
-      x = {
-        fraction = 0.5;
-      };
-      y = {
-        fraction = 0.25;
-      };
-      width = {
-        fraction = 0.38;
+      config = {
+        # Center position
+        x = {
+          fraction = 0.5;
+        };
+        y = {
+          fraction = 0.25;
+        };
+        width = {
+          fraction = 0.38;
+        };
+
+        hideIcons = false;
+        ignoreExclusiveZones = false;
+        layer = "overlay";
+        hidePluginInfo = false;
+        closeOnClick = true;
+        showResultsImmediately = true;
+
+        plugins = [
+          "${pkgs.anyrun}/lib/libapplications.so"
+          "${pkgs.anyrun}/lib/libsymbols.so"
+          "${pkgs.anyrun}/lib/libwebsearch.so"
+          "${pkgs.anyrun}/lib/libstdin.so"
+          "${pkgs.anyrun}/lib/librink.so"
+          "${pkgs.anyrun}/lib/libkidex.so"
+          "${pkgs.anyrun}/lib/libshell.so"
+        ];
       };
 
-      hideIcons = false;
-      ignoreExclusiveZones = false;
-      layer = "overlay";
-      hidePluginInfo = false;
-      closeOnClick = true;
-      showResultsImmediately = true;
+      extraCss = ''
+        window { background-color: transparent; }
 
-      plugins = [
-        "${pkgs.anyrun}/lib/libapplications.so"
-        "${pkgs.anyrun}/lib/libsymbols.so"
-        "${pkgs.anyrun}/lib/libwebsearch.so"
-        "${pkgs.anyrun}/lib/libstdin.so"
-        "${pkgs.anyrun}/lib/librink.so"
-        "${pkgs.anyrun}/lib/libkidex.so"
-        "${pkgs.anyrun}/lib/libshell.so"
-      ];
+        .main {
+          background-color: rgba(17, 17, 27, 0.94);
+          border-radius: 18px;
+          padding: 12px;
+        }
+
+        entry, textview {
+          background: rgba(24, 24, 37, 0.9);
+          border-radius: 12px;
+          padding: 8px 10px;
+          font-size: 14pt;
+          color: #cdd6f4;
+        }
+
+        .matches {
+          margin-top: 6px;
+          gap: 4px;
+        }
+
+        .match {
+          padding: 6px 8px;
+          border-radius: 10px;
+        }
+
+        .match:selected {
+          background: rgba(137, 180, 250, 0.22);
+        }
+      '';
+
+      extraConfigFiles = {
+        "applications.ron".text = ''
+          Config(
+            desktop_actions: true,
+            max_entries: 8,
+            terminal: Some("ghostty"),
+          )
+        '';
+
+        "symbols.ron".text = ''
+          Config(
+            prefix: ":",
+            max_entries: 10,
+          )
+        '';
+
+        "websearch.ron".text = ''
+          Config(
+            prefix: "?",
+            engines: [DuckDuckGo],
+          )
+        '';
+
+        "shell.ron".text = ''
+          Config(
+            prefix: ":sh",
+            shell: None,
+          )
+        '';
+
+        "kidex.ron".text = ''
+          Config(
+            max_entries: 10,
+          )
+        '';
+      };
     };
 
-    extraCss = ''
-      window { background-color: transparent; }
+    waybar = {
+      enable = true;
+      settings.mainBar = {
+        layer = "top";
+        height = 32;
+        position = "top";
 
-      .main {
-        background-color: rgba(17, 17, 27, 0.94);
-        border-radius: 18px;
-        padding: 12px;
-      }
-
-      entry, textview {
-        background: rgba(24, 24, 37, 0.9);
-        border-radius: 12px;
-        padding: 8px 10px;
-        font-size: 14pt;
-        color: #cdd6f4;
-      }
-
-      .matches {
-        margin-top: 6px;
-        gap: 4px;
-      }
-
-      .match {
-        padding: 6px 8px;
-        border-radius: 10px;
-      }
-
-      .match:selected {
-        background: rgba(137, 180, 250, 0.22);
-      }
-    '';
-
-    extraConfigFiles = {
-      "applications.ron".text = ''
-        Config(
-          desktop_actions: true,
-          max_entries: 8,
-          terminal: Some("ghostty"),
-        )
-      '';
-
-      "symbols.ron".text = ''
-        Config(
-          prefix: ":",
-          max_entries: 10,
-        )
-      '';
-
-      "websearch.ron".text = ''
-        Config(
-          prefix: "?",
-          engines: [DuckDuckGo],
-        )
-      '';
-
-      "shell.ron".text = ''
-        Config(
-          prefix: ":sh",
-          shell: None,
-        )
-      '';
-
-      "kidex.ron".text = ''
-        Config(
-          max_entries: 10,
-        )
-      '';
+        modules-left = [ "hyprland/workspaces" ];
+        modules-center = [ "clock" ];
+        modules-right = [
+          "pulseaudio"
+          "battery"
+          "network"
+          "tray"
+        ];
+      };
     };
-  };
 
-  ########################################
-  ## Waybar
-  ########################################
-
-  programs.waybar = {
-    enable = true;
-    settings.mainBar = {
-      layer = "top";
-      height = 32;
-      position = "top";
-
-      modules-left = [ "hyprland/workspaces" ];
-      modules-center = [ "clock" ];
-      modules-right = [
-        "pulseaudio"
-        "battery"
-        "network"
-        "tray"
-      ];
-    };
+    hyprlock.enable = true;
   };
 
   ########################################
@@ -252,42 +277,5 @@
       default-timeout = 5000;
       border-radius = 10;
     };
-  };
-
-  ########################################
-  ## Hyprlock
-  ########################################
-
-  programs.hyprlock.enable = true;
-
-  ########################################
-  ## OSK script (~/.local/bin/osk-toggle)
-  ########################################
-
-  home.file.".local/bin/osk-toggle" = {
-    text = ''
-      #!/usr/bin/env bash
-      if pgrep -x wvkbd-mobintl >/dev/null; then
-        pkill -x wvkbd-mobintl
-      else
-        wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
-      fi
-    '';
-    executable = true;
-  };
-
-  ########################################
-  ## Clipboard picker script (~/.local/bin/anyrun-clipboard)
-  ########################################
-
-  home.file.".local/bin/anyrun-clipboard" = {
-    text = ''
-      #!/usr/bin/env bash
-      cliphist list \
-        | anyrun --plugins libstdin.so \
-        | cliphist decode \
-        | wl-copy
-    '';
-    executable = true;
   };
 }

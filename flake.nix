@@ -52,16 +52,18 @@
             # home-manager as a NixOS module
             home-manager.nixosModules.home-manager
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.${username} = {
-                imports = [
-                  catppuccin.homeModules.catppuccin
-                  ./users/default-user.nix
-                ];
-              };
-              home-manager.extraSpecialArgs = {
-                inherit hostCfg username;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users.${username} = {
+                  imports = [
+                    catppuccin.homeModules.catppuccin
+                    ./users/default-user.nix
+                  ];
+                };
+                extraSpecialArgs = {
+                  inherit hostCfg username;
+                };
               };
             }
           ];

@@ -12,9 +12,18 @@ let
   monitorName = hostCfg.internalMonitor;
 in
 {
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "25.05";
+  home = {
+    username = username;
+    homeDirectory = "/home/${username}";
+    stateVersion = "25.05";
+
+    sessionVariables = {
+      GDK_SCALE = "1";
+      GDK_DPI_SCALE = scaleStr;
+      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
+      QT_SCALE_FACTOR = scaleStr;
+    };
+  };
 
   # Catppuccin - primary theming for home-manager apps
   catppuccin = {
@@ -26,17 +35,6 @@ in
       enable = true;
       accent = "blue";
     };
-  };
-
-  ########################
-  ## Display profile (per-host via hostCfg)
-  ########################
-
-  home.sessionVariables = {
-    GDK_SCALE = "1";
-    GDK_DPI_SCALE = scaleStr;
-    QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-    QT_SCALE_FACTOR = scaleStr;
   };
 
   gtk = {
@@ -52,10 +50,6 @@ in
 
     gtk4.extraConfig = config.gtk.gtk3.extraConfig;
   };
-
-  ########################
-  ## Shared UI / tools
-  ########################
 
   imports = [
     ../modules/home/ui.nix
