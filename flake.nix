@@ -9,7 +9,7 @@
     stylix.url = "github:nix-community/stylix/release-25.05";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
-    catppuccin.url = "github:catppuccin/nix/v1.1.0";
+    catppuccin.url = "github:catppuccin/nix/release-25.05";
   };
 
   outputs = { self, nixpkgs, home-manager, stylix, catppuccin, ... }:

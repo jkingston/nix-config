@@ -9,20 +9,15 @@ in {
   home.stateVersion = "25.05";
 
   # Catppuccin - primary theming for home-manager apps
-  # Note: mako and cursors options don't exist in v1.1.0, configured separately
   catppuccin = {
     enable = true;
     flavor = "mocha";
     accent = "blue";
-  };
 
-  # Catppuccin cursors (configured via home.pointerCursor since catppuccin.cursors
-  # doesn't exist in catppuccin/nix v1.1.0)
-  home.pointerCursor = {
-    name = "catppuccin-mocha-blue-cursors";
-    package = pkgs.catppuccin-cursors.mochaBlue;
-    size = 24;
-    gtk.enable = true;
+    pointerCursor = {
+      enable = true;
+      accent = "blue";
+    };
   };
 
   ########################
