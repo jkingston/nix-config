@@ -40,7 +40,23 @@
 
       # Dev tools (Omarchy)
       lazydocker
+
+      # Wallpaper (Variety + swaybg backend)
+      variety
+      swaybg
     ];
+
+    # Variety wallpaper setter script for swaybg
+    file.".config/variety/scripts/set_wallpaper" = {
+      text = ''
+        #!/usr/bin/env bash
+        # Kill any existing swaybg instance
+        pkill swaybg 2>/dev/null
+        # Set new wallpaper
+        swaybg -i "$1" -m fill &
+      '';
+      executable = true;
+    };
 
     file.".local/bin/osk-toggle" = {
       text = ''
@@ -102,6 +118,7 @@
       exec-once = [
         "hyprpanel"
         "mako" # notifications daemon
+        "variety" # wallpaper manager (auto-restores last wallpaper)
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
