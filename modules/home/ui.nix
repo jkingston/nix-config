@@ -89,6 +89,7 @@
       "$mod" = "SUPER";
 
       exec-once = [
+        "hyprpanel"
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
       ];
@@ -218,8 +219,6 @@
     hyprpanel = {
       enable = true;
       systemd.enable = true;
-      hyprland.enable = true;
-      overwrite.enable = true;
 
       settings = {
         bar = {

@@ -17,12 +17,6 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
-
-    # HyprPanel bar
-    hyprpanel = {
-      url = "github:Jas-SinghFSU/HyprPanel";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -32,7 +26,6 @@
       stylix,
       catppuccin,
       walker,
-      hyprpanel,
       ...
     }:
     let
@@ -55,7 +48,7 @@
 
           # Make hostCfg & username available to all modules
           specialArgs = {
-            inherit stylix username hostCfg walker hyprpanel;
+            inherit stylix username hostCfg walker;
           };
 
           modules = [
@@ -73,12 +66,11 @@
                   imports = [
                     catppuccin.homeModules.catppuccin
                     walker.homeManagerModules.default
-                    hyprpanel.homeManagerModules.hyprpanel
                     ./users/default-user.nix
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username walker hyprpanel;
+                  inherit hostCfg username walker;
                 };
               };
             }
