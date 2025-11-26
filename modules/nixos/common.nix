@@ -33,20 +33,19 @@
     enable = true;
     flavor = "mocha";
     accent = "blue";
+
+    plymouth = {
+      enable = true;
+      flavor = "mocha";
+    };
   };
 
   boot = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # Plymouth with catppuccin theme (via catppuccin/nix)
-    plymouth = {
-      enable = true;
-      catppuccin = {
-        enable = true;
-        flavor = "mocha";
-      };
-    };
+    # Plymouth boot splash
+    plymouth.enable = true;
 
     # Enable systemd in initrd for graphical LUKS prompt
     initrd.systemd.enable = true;
