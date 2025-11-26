@@ -16,7 +16,7 @@
 
   programs.git = {
     enable = true;
-    userName = "Jack Kingston";     # remember to swap these later
+    userName = "Jack Kingston"; # remember to swap these later
     userEmail = "j.kngstn@gmail.com";
 
     extraConfig = {
@@ -42,4 +42,3 @@
 
   # Optionally configure Neovim here or in its own module
 }
-

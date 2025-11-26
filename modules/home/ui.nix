@@ -1,7 +1,12 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
-  imports = [];
+  imports = [ ];
 
   home.packages = with pkgs; [
     # Core UI tools
@@ -33,10 +38,10 @@
     settings = {
       input = {
         kb_layout = "gb";
-	
-	touchpad = {
-	  natural_scroll = true;
-	};
+
+        touchpad = {
+          natural_scroll = true;
+        };
       };
 
       "$mod" = "SUPER";
@@ -115,9 +120,15 @@
 
     config = {
       # Center position
-      x = { fraction = 0.5; };
-      y = { fraction = 0.25; };
-      width = { fraction = 0.38; };
+      x = {
+        fraction = 0.5;
+      };
+      y = {
+        fraction = 0.25;
+      };
+      width = {
+        fraction = 0.38;
+      };
 
       hideIcons = false;
       ignoreExclusiveZones = false;
@@ -220,7 +231,12 @@
 
       modules-left = [ "hyprland/workspaces" ];
       modules-center = [ "clock" ];
-      modules-right = [ "pulseaudio" "battery" "network" "tray" ];
+      modules-right = [
+        "pulseaudio"
+        "battery"
+        "network"
+        "tray"
+      ];
     };
   };
 
@@ -275,4 +291,3 @@
     executable = true;
   };
 }
-

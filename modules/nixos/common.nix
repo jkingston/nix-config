@@ -1,28 +1,37 @@
-{ config, pkgs, stylix, hostCfg, ... }:
+{
+  config,
+  pkgs,
+  stylix,
+  hostCfg,
+  ...
+}:
 
 {
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   time.timeZone = "Europe/London";
   i18n.defaultLocale = "en_GB.UTF-8";
   console.keyMap = "uk";
 
   services.xserver.enable = false;
-  
+
   services.greetd = {
     enable = true;
     settings = {
       # auto-login, no menu
       default_session = {
         command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-	user = "jack";
+        user = "jack";
       };
     };
   };
 
   programs.hyprland = {
     enable = true;
-    withUWSM = true;        # use UWSM, Omarchy-style
+    withUWSM = true; # use UWSM, Omarchy-style
     xwayland.enable = true;
   };
 
@@ -78,19 +87,27 @@
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 22 53317 ];
+    allowedTCPPorts = [
+      22
+      53317
+    ];
     allowedUDPPorts = [ 53317 ];
   };
 
   environment.systemPackages = with pkgs; [
-    git wget curl
-    wl-clipboard grim slurp swappy
+    git
+    wget
+    curl
+    wl-clipboard
+    grim
+    slurp
+    swappy
   ];
 
   # Stylix - only for wallpaper and fonts (catppuccin handles the rest)
   stylix = {
     enable = true;
-    autoEnable = false;  # Don't auto-theme apps - catppuccin does that
+    autoEnable = false; # Don't auto-theme apps - catppuccin does that
 
     # Color scheme still needed for Stylix internals
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
@@ -112,4 +129,3 @@
 
   system.stateVersion = "25.05";
 }
-

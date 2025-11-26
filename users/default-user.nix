@@ -1,9 +1,17 @@
-{ config, pkgs, lib, hostCfg, username, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  hostCfg,
+  username,
+  ...
+}:
 
 let
   scaleStr = builtins.toString hostCfg.scale;
   monitorName = hostCfg.internalMonitor;
-in {
+in
+{
   home.username = username;
   home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.05";
@@ -37,7 +45,8 @@ in {
     gtk3.extraConfig =
       let
         dpi = 96.0 * hostCfg.scale * 1000.0;
-      in {
+      in
+      {
         "gtk-xft-dpi" = builtins.toString (builtins.floor dpi);
       };
 
@@ -54,4 +63,3 @@ in {
     ../modules/home/shell.nix
   ];
 }
-

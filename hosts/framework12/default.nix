@@ -1,4 +1,11 @@
-{ config, pkgs, stylix, hostCfg, username, ... }:
+{
+  config,
+  pkgs,
+  stylix,
+  hostCfg,
+  username,
+  ...
+}:
 
 {
   imports = [
@@ -10,10 +17,15 @@
 
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+      "audio"
+      "input"
+    ];
   };
 
   # Framework-12 specific quirks (if any)
   # e.g. special kernel params, power tweaks, etc.
 }
-
