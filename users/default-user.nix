@@ -17,12 +17,15 @@ in {
     # Disable mako - the catppuccin module uses deprecated extraConfig API
     # Colors are applied directly in modules/home/ui.nix instead
     mako.enable = false;
+  };
 
-    # Catppuccin cursors
-    cursors = {
-      enable = true;
-      accent = "blue";
-    };
+  # Catppuccin cursors (configured via home.pointerCursor since catppuccin.cursors
+  # doesn't exist in catppuccin/nix v1.1.0)
+  home.pointerCursor = {
+    name = "catppuccin-mocha-blue-cursors";
+    package = pkgs.catppuccin-cursors.mochaBlue;
+    size = 24;
+    gtk.enable = true;
   };
 
   ########################
