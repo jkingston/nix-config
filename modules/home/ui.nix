@@ -29,6 +29,10 @@
 
       # Browser / misc
       chromium
+
+      # Media control (Omarchy)
+      playerctl
+      brightnessctl
     ];
 
     file.".local/bin/osk-toggle" = {
@@ -94,36 +98,45 @@
         "wl-paste --type image --watch cliphist store"
       ];
 
-      # Keybinds (Omarchy-inspired)
+      # Keybinds (Omarchy-style)
       bind = [
-        # Core
+        # Core apps (Omarchy)
         "$mod, RETURN, exec, ghostty"
         "$mod, SPACE, exec, walker"
-        "$mod, Q, killactive,"
+        "$mod, B, exec, chromium"
+        "$mod, N, exec, ghostty -e nvim"
+        "$mod, T, exec, ghostty -e btop"
 
-        # Window management
-        "$mod, F, fullscreen, 0"
-        "$mod, T, togglefloating,"
-        "$mod, P, pin,"
-        "$mod, M, fullscreen, 1" # maximize (keeps gaps)
+        # Window management (Omarchy)
+        "$mod, W, killactive,"
+        "$mod, J, togglesplit," # dwindle
+        "$mod, P, pseudo," # dwindle
+        "$mod SHIFT, V, togglefloating,"
+        "SHIFT, F11, fullscreen, 0"
+        "ALT, F11, fullscreen, 1" # maximize (keeps gaps)
 
-        # Focus (vim-style)
+        # Focus (arrow keys - Omarchy style)
+        "$mod, LEFT, movefocus, l"
+        "$mod, RIGHT, movefocus, r"
+        "$mod, UP, movefocus, u"
+        "$mod, DOWN, movefocus, d"
+
+        # Focus (vim-style alternative)
         "$mod, H, movefocus, l"
-        "$mod, J, movefocus, d"
-        "$mod, K, movefocus, u"
         "$mod, L, movefocus, r"
+        "$mod, K, movefocus, u"
 
-        # Move windows (vim-style)
-        "$mod SHIFT, H, movewindow, l"
-        "$mod SHIFT, J, movewindow, d"
-        "$mod SHIFT, K, movewindow, u"
-        "$mod SHIFT, L, movewindow, r"
+        # Swap windows (Omarchy)
+        "$mod SHIFT, LEFT, swapwindow, l"
+        "$mod SHIFT, RIGHT, swapwindow, r"
+        "$mod SHIFT, UP, swapwindow, u"
+        "$mod SHIFT, DOWN, swapwindow, d"
 
-        # Resize mode
-        "$mod CTRL, H, resizeactive, -50 0"
-        "$mod CTRL, J, resizeactive, 0 50"
-        "$mod CTRL, K, resizeactive, 0 -50"
-        "$mod CTRL, L, resizeactive, 50 0"
+        # Resize (Omarchy uses minus/equal keys)
+        "$mod, MINUS, resizeactive, -100 0"
+        "$mod, EQUAL, resizeactive, 100 0"
+        "$mod SHIFT, MINUS, resizeactive, 0 -100"
+        "$mod SHIFT, EQUAL, resizeactive, 0 100"
 
         # Workspaces 1-10
         "$mod, 1, workspace, 1"
@@ -149,35 +162,67 @@
         "$mod SHIFT, 9, movetoworkspace, 9"
         "$mod SHIFT, 0, movetoworkspace, 10"
 
+        # Workspace navigation (Omarchy)
+        "$mod, TAB, workspace, e+1"
+        "$mod SHIFT, TAB, workspace, e-1"
+        "$mod CTRL, TAB, workspace, previous"
+
+        # Cycle windows (Omarchy)
+        "ALT, TAB, cyclenext,"
+        "ALT SHIFT, TAB, cyclenext, prev"
+
         # Special workspace (scratchpad)
         "$mod, grave, togglespecialworkspace, magic"
         "$mod SHIFT, grave, movetoworkspace, special:magic"
 
-        # Window switcher
-        "$mod, TAB, exec, walker -m windows"
-
-        # Screenshots (grimblast)
+        # Screenshots (Omarchy-style)
         ", Print, exec, grimblast copy area"
-        "$mod, Print, exec, grimblast copy output"
-        "$mod SHIFT, Print, exec, grimblast copy screen"
+        "SHIFT, Print, exec, grimblast copy screen"
+        "$mod, Print, exec, hyprpicker -a" # color picker
 
         # Clipboard picker
         "$mod, V, exec, ~/.local/bin/walker-clipboard"
 
         # Lock screen
-        "$mod CTRL, L, exec, hyprlock"
+        "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
 
-        # Color picker
-        "$mod SHIFT, C, exec, hyprpicker -a"
+        # Emoji picker (Omarchy)
+        "$mod CTRL, E, exec, walker -m symbols"
 
         # OSK
         "$mod, O, exec, ~/.local/bin/osk-toggle"
+
+        # Toggle transparency (Omarchy)
+        "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
       ];
 
       # Mouse bindings
       bindm = [
         "$mod, mouse:272, movewindow" # Super + left click to drag
         "$mod, mouse:273, resizewindow" # Super + right click to resize
+      ];
+
+      # Mouse scroll for workspaces (Omarchy)
+      bind = [
+        "$mod, MOUSE_DOWN, workspace, e+1"
+        "$mod, MOUSE_UP, workspace, e-1"
+      ];
+
+      # Media keys (Omarchy-style)
+      bindel = [
+        ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        ", XF86MonBrightnessUp, exec, brightnessctl set 5%+"
+        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+      ];
+
+      bindl = [
+        ", XF86AudioNext, exec, playerctl next"
+        ", XF86AudioPrev, exec, playerctl previous"
+        ", XF86AudioPlay, exec, playerctl play-pause"
+        ", XF86AudioPause, exec, playerctl play-pause"
       ];
 
       general = {
