@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  walker,
   ...
 }:
 
@@ -44,6 +42,11 @@
       # Wallpaper (Variety + swaybg backend)
       variety
       swaybg
+
+      # App launcher
+      rofi-wayland
+      rofi-power-menu
+      rofimoji # emoji picker
     ];
 
     file = {
@@ -71,11 +74,11 @@
         executable = true;
       };
 
-      ".local/bin/walker-clipboard" = {
+      ".local/bin/rofi-clipboard" = {
         text = ''
           #!/usr/bin/env bash
           cliphist list \
-            | walker --dmenu \
+            | rofi -dmenu -p "Clipboard" \
             | cliphist decode \
             | wl-copy
         '';
@@ -129,7 +132,7 @@
       bind = [
         # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
-        "$mod, SPACE, exec, walker"
+        "$mod, SPACE, exec, rofi -show drun"
         "$mod SHIFT, B, exec, chromium"
         "$mod SHIFT, N, exec, ghostty -e nvim"
         "$mod SHIFT, T, exec, ghostty -e btop"
@@ -207,7 +210,7 @@
         # Clipboard (Omarchy universal)
         "$mod, C, exec, wl-copy"
         "$mod, V, exec, wl-paste"
-        "$mod CTRL, V, exec, ~/.local/bin/walker-clipboard" # clipboard manager
+        "$mod CTRL, V, exec, ~/.local/bin/rofi-clipboard" # clipboard manager
 
         # Toggles
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
@@ -222,10 +225,10 @@
         "$mod ALT, COMMA, exec, makoctl invoke"
 
         # Emoji picker
-        "$mod CTRL, E, exec, walker -m symbols"
+        "$mod CTRL, E, exec, rofimoji"
 
         # System
-        "$mod, ESCAPE, exec, walker -m power" # lock/suspend/restart/shutdown
+        "$mod, ESCAPE, exec, rofi -show power-menu -modi power-menu:rofi-power-menu" # lock/suspend/restart/shutdown
 
         # Mouse scroll for workspaces (Omarchy)
         "$mod, MOUSE_DOWN, workspace, e+1"
@@ -312,10 +315,24 @@
   '';
 
   ########################################
-  ## Programs (walker, hyprpanel, hyprlock)
+  ## Programs (rofi, hyprpanel, hyprlock)
   ########################################
 
   programs = {
+    rofi = {
+      enable = true;
+      package = pkgs.rofi-wayland;
+      terminal = "${pkgs.ghostty}/bin/ghostty";
+      # theme handled by catppuccin module
+      extraConfig = {
+        modi = "drun,run,window";
+        show-icons = true;
+        drun-display-format = "{name}";
+        disable-history = false;
+        sorting-method = "fzf";
+      };
+    };
+
     hyprpanel = {
       enable = true;
       systemd.enable = true;
@@ -405,124 +422,6 @@
               "notifications"
             ];
           };
-        };
-      };
-    };
-
-    walker = {
-      enable = true;
-      runAsService = true;
-
-      config = {
-        placeholder = "Search...";
-        terminal = "ghostty";
-        ignore_mouse = false;
-        orientation = "vertical";
-        enable_typeahead = true;
-        show_initial_entries = true;
-        theme = "catppuccin";
-
-        builtins = {
-          applications = {
-            weight = 5;
-            name = "applications";
-            placeholder = "Applications";
-            prioritize_new = true;
-            actions = true;
-          };
-
-          clipboard = {
-            switcher_only = true;
-            name = "clipboard";
-            placeholder = "Clipboard";
-            weight = 5;
-            max_entries = 10;
-          };
-
-          calc = {
-            weight = 5;
-            name = "calc";
-            placeholder = "Calculator";
-            min_chars = 0;
-          };
-
-          websearch = {
-            weight = 1;
-            name = "websearch";
-            placeholder = "Search the web";
-            engines = [ "duckduckgo" ];
-          };
-
-          hyprland = {
-            weight = 3;
-            name = "windows";
-            placeholder = "Windows";
-            context_aware = true;
-          };
-
-          symbols = {
-            weight = 3;
-            name = "symbols";
-            placeholder = "Symbols";
-          };
-
-          runner = {
-            weight = 1;
-            name = "runner";
-            placeholder = "Run command";
-          };
-
-          finder = {
-            weight = 3;
-            name = "finder";
-            placeholder = "Files";
-            switcher_only = true;
-          };
-        };
-      };
-
-      # Custom Catppuccin theme
-      themes = {
-        catppuccin = {
-          style = ''
-            @define-color background rgba(17, 17, 27, 0.94);
-            @define-color foreground #cdd6f4;
-            @define-color surface0 #313244;
-            @define-color blue #89b4fa;
-            @define-color lavender #b4befe;
-            @define-color subtext0 #a6adc8;
-
-            #window { background: transparent; }
-
-            #box {
-              background: @background;
-              border-radius: 18px;
-              padding: 12px;
-            }
-
-            #search {
-              background: @surface0;
-              border-radius: 12px;
-              padding: 10px 14px;
-              color: @foreground;
-              font-size: 16px;
-            }
-
-            #search:focus { border: 1px solid @blue; }
-
-            #list { margin-top: 8px; }
-
-            #list row {
-              padding: 8px 10px;
-              border-radius: 10px;
-              margin: 2px 0;
-            }
-
-            #list row:selected { background: alpha(@blue, 0.22); }
-            #list row label { color: @foreground; }
-            #list row:selected label { color: @lavender; }
-            .activationlabel { color: @subtext0; font-size: 12px; }
-          '';
         };
       };
     };

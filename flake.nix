@@ -17,18 +17,6 @@
       url = "github:catppuccin/nix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Walker launcher
-    elephant = {
-      url = "github:abenz1267/elephant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.elephant.follows = "elephant";
-    };
   };
 
   outputs =
@@ -37,14 +25,13 @@
       home-manager,
       stylix,
       catppuccin,
-      walker,
       ...
     }:
     let
       system = "x86_64-linux";
       username = "jack";
 
-      # Per-machine “facts” that differ
+      # Per-machine "facts" that differ
       hosts = {
         framework12 = {
           hostName = "fw12";
@@ -64,7 +51,6 @@
               stylix
               username
               hostCfg
-              walker
               ;
           };
 
@@ -82,12 +68,11 @@
                 users.${username} = {
                   imports = [
                     catppuccin.homeModules.catppuccin
-                    walker.homeManagerModules.default
                     ./users/default-user.nix
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username walker;
+                  inherit hostCfg username;
                 };
               };
             }
