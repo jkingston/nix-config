@@ -33,9 +33,6 @@
       playerctl
       brightnessctl
 
-      # Notifications (Omarchy uses mako)
-      mako
-
       # Dev tools (Omarchy)
       lazydocker
 
@@ -121,8 +118,6 @@
       "$mod" = "SUPER";
 
       exec-once = [
-        "hyprpanel"
-        "mako" # notifications daemon
         "variety" # wallpaper manager (auto-restores last wallpaper)
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
@@ -218,11 +213,7 @@
         "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 hyprpanel" # toggle top bar
         "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
 
-        # Notifications (Omarchy uses comma)
-        "$mod, COMMA, exec, makoctl dismiss"
-        "$mod SHIFT, COMMA, exec, makoctl dismiss --all"
-        "$mod CTRL, COMMA, exec, makoctl mode -t do-not-disturb"
-        "$mod ALT, COMMA, exec, makoctl invoke"
+        # Notifications (HyprPanel handles notifications via built-in panel)
 
         # Emoji picker
         "$mod CTRL, E, exec, rofimoji"
