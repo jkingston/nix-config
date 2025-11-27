@@ -31,7 +31,7 @@
       system = "x86_64-linux";
       username = "jack";
 
-      # Per-machine “facts” that differ
+      # Per-machine "facts" that differ
       hosts = {
         framework12 = {
           hostName = "fw12";
