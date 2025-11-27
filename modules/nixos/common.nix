@@ -130,8 +130,8 @@
 
     # Fonts (catppuccin/nix doesn't handle this)
     fonts.monospace = {
-      package = pkgs.nerd-fonts.caskaydia-cove;
-      name = "CaskaydiaCove Nerd Font";
+      package = pkgs.nerd-fonts.jetbrains-mono;
+      name = "JetBrainsMono Nerd Font";
     };
 
     overlays.enable = false;

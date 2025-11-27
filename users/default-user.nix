@@ -22,10 +22,10 @@ in
       QT_SCALE_FACTOR = scaleStr;
     };
 
-    # Phinger cursor with hyprcursor support for HiDPI
+    # Adwaita cursor (Omarchy default)
     pointerCursor = {
-      name = "phinger-cursors-dark";
-      package = pkgs.phinger-cursors;
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
       size = 24;
       gtk.enable = true;
       hyprcursor = {
@@ -40,9 +40,12 @@ in
     enable = true;
     flavor = "mocha";
     accent = "blue";
-    # Cursors disabled - using Bibata instead for better hyprcursor support
     mako.enable = true;
     waybar.enable = true;
+    bat.enable = true;
+    fzf.enable = true;
+    hyprlock.enable = true;
+    wlogout.enable = true;
   };
 
   gtk = {

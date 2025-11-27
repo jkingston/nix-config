@@ -10,13 +10,21 @@
     delta
     direnv
     nix-direnv
-    neovim
     jq
     ripgrep
     fd
     unzip
     tree
     claude-code
+
+    # Shell tools (Omarchy)
+    lazygit
+
+    # System monitoring
+    ncdu # disk usage analyzer
+    duf # modern df
+    procs # modern ps
+    tldr # simplified man pages
   ];
 
   programs = {
@@ -45,7 +53,13 @@
     };
 
     ssh.enable = true;
-  };
 
-  # Optionally configure Neovim here or in its own module
+    # Neovim with LazyVim
+    neovim = {
+      enable = true;
+      defaultEditor = true;
+      viAlias = true;
+      vimAlias = true;
+    };
+  };
 }

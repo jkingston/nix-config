@@ -34,9 +34,9 @@
       # Dev tools (Omarchy)
       lazydocker
 
-      # Wallpaper (Variety + swaybg backend)
-      variety
-      swaybg
+      # Wallpaper (swww + waypaper - Omarchy style)
+      swww
+      waypaper
 
       # App launcher
       walker
@@ -45,18 +45,6 @@
     ];
 
     file = {
-      # Variety wallpaper setter script for swaybg
-      ".config/variety/scripts/set_wallpaper" = {
-        text = ''
-          #!/usr/bin/env bash
-          # Kill any existing swaybg instance
-          pkill swaybg 2>/dev/null
-          # Set new wallpaper
-          swaybg -i "$1" -m fill &
-        '';
-        executable = true;
-      };
-
       ".local/bin/osk-toggle" = {
         text = ''
           #!/usr/bin/env bash
@@ -79,6 +67,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = false;
+    systemd.variables = [ "--all" ]; # Export PATH to systemd for hypridle
     package = null;
     portalPackage = null;
 
@@ -106,10 +95,11 @@
       "$mod" = "SUPER";
 
       exec-once = [
-        "variety" # wallpaper manager (auto-restores last wallpaper)
+        "swww-daemon" # wallpaper daemon
+        "waypaper --restore" # restore last wallpaper
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
-        # Note: waybar and mako are started via systemd services
+        # Note: waybar, mako, and hypridle are started via systemd services
       ];
 
       # Keybinds (Omarchy - from official manual)
@@ -209,6 +199,9 @@
         # Emoji picker
         "$mod CTRL, E, exec, walker -m emojis"
 
+        # Wallpaper picker (Omarchy)
+        "$mod CTRL, W, exec, waypaper"
+
         # System
         "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
 
@@ -240,31 +233,31 @@
         ", XF86AudioPause, exec, playerctl play-pause"
       ];
 
+      # Omarchy styling
       general = {
-        gaps_in = 4;
-        gaps_out = 8;
-        border_size = 1;
-        "col.active_border" = "rgba(89b4facc)";
-        "col.inactive_border" = "rgba(31324466)";
+        gaps_in = 5;
+        gaps_out = 10;
+        border_size = 2;
+        # Colors set by catppuccin module
       };
 
       decoration = {
-        rounding = 8;
+        rounding = 0; # Square windows (Omarchy style)
         active_opacity = 1.0;
         inactive_opacity = 0.95;
 
         blur = {
           enabled = true;
-          size = 4;
+          size = 2;
           passes = 2;
-          new_optimizations = true;
+          brightness = 0.6;
+          contrast = 0.75;
         };
 
         shadow = {
           enabled = true;
-          range = 4;
+          range = 2;
           render_power = 3;
-          color = "rgba(1e1e2e40)";
         };
       };
 
@@ -288,8 +281,8 @@
 
   xdg.configFile = {
     "ghostty/config".text = ''
-      font-family = CaskaydiaCove Nerd Font
-      font-size = 11
+      font-family = JetBrainsMono Nerd Font
+      font-size = 9
       theme = catppuccin-mocha
 
       window-decoration = none
@@ -495,17 +488,18 @@
         };
       };
 
+      # Omarchy-style Waybar (square, minimal)
       style = ''
         * {
-          font-family: "CaskaydiaCove Nerd Font";
-          font-size: 13px;
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 12px;
           min-height: 0;
+          border-radius: 0; /* Square corners */
         }
 
         window#waybar {
-          background-color: alpha(@base, 0.9);
+          background-color: @base;
           color: @text;
-          border-bottom: 1px solid @surface0;
         }
 
         .modules-left { margin-left: 8px; }
@@ -513,10 +507,9 @@
 
         #workspaces button {
           padding: 0 6px;
-          margin: 2px;
+          margin: 0 1.5px;
           color: @overlay0;
           background: transparent;
-          border-radius: 4px;
         }
 
         #workspaces button.active {
@@ -524,10 +517,17 @@
           background: @surface0;
         }
 
-        #clock, #battery, #cpu, #network, #pulseaudio, #bluetooth, #tray {
+        #workspaces button.empty { opacity: 0.5; }
+
+        #clock, #battery, #cpu, #network, #pulseaudio, #bluetooth {
           padding: 0 10px;
           margin: 4px 2px;
         }
+
+        #tray { margin-right: 16px; }
+        #bluetooth { margin-right: 17px; }
+        #network { margin-right: 13px; }
+        #clock { margin-left: 8.75px; }
 
         #battery.warning { color: @yellow; }
         #battery.critical { color: @red; }
@@ -537,10 +537,122 @@
           padding: 0 12px;
           color: @blue;
         }
+
+        tooltip { padding: 2px; }
       '';
     };
 
-    hyprlock.enable = true;
+    # Hyprlock - Omarchy style (square input, blurred background)
+    hyprlock = {
+      enable = true;
+      settings = {
+        general = {
+          disable_loading_bar = true;
+          hide_cursor = true;
+        };
+
+        background = [
+          {
+            path = "screenshot";
+            blur_passes = 3;
+            blur_size = 8;
+            color = "rgba(30, 30, 46, 1.0)";
+          }
+        ];
+
+        input-field = [
+          {
+            size = "650, 100";
+            position = "0, 0";
+            halign = "center";
+            valign = "center";
+            outline_thickness = 4;
+            rounding = 0; # Square corners (Omarchy style)
+            outer_color = "rgba(205, 214, 244, 1.0)";
+            inner_color = "rgba(30, 30, 46, 0.8)";
+            font_color = "rgba(205, 214, 244, 1.0)";
+            font_family = "JetBrainsMono Nerd Font";
+            fade_on_empty = false;
+            placeholder_text = "Enter Password";
+            fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
+            check_color = "rgba(68, 157, 171, 1.0)";
+            shadow_passes = 0;
+          }
+        ];
+        # No labels - Omarchy keeps it minimal
+      };
+    };
+
+    # Wlogout - Omarchy style (square buttons)
+    wlogout = {
+      enable = true;
+      layout = [
+        {
+          label = "lock";
+          action = "hyprlock";
+          text = "Lock";
+          keybind = "l";
+        }
+        {
+          label = "logout";
+          action = "hyprctl dispatch exit";
+          text = "Logout";
+          keybind = "e";
+        }
+        {
+          label = "suspend";
+          action = "systemctl suspend";
+          text = "Suspend";
+          keybind = "s";
+        }
+        {
+          label = "reboot";
+          action = "systemctl reboot";
+          text = "Reboot";
+          keybind = "r";
+        }
+        {
+          label = "shutdown";
+          action = "systemctl poweroff";
+          text = "Shutdown";
+          keybind = "p";
+        }
+      ];
+    };
+  };
+
+  ########################################
+  ## Hypridle - Automatic locking
+  ########################################
+
+  services.hypridle = {
+    enable = true;
+    settings = {
+      general = {
+        lock_cmd = "pidof hyprlock || hyprlock";
+        before_sleep_cmd = "loginctl lock-session";
+        after_sleep_cmd = "hyprctl dispatch dpms on";
+      };
+
+      listener = [
+        # Lock screen after 5 minutes
+        {
+          timeout = 300;
+          on-timeout = "loginctl lock-session";
+        }
+        # Turn off display after 5.5 minutes
+        {
+          timeout = 330;
+          on-timeout = "hyprctl dispatch dpms off";
+          on-resume = "hyprctl dispatch dpms on";
+        }
+        # Suspend after 30 minutes
+        {
+          timeout = 1800;
+          on-timeout = "systemctl suspend";
+        }
+      ];
+    };
   };
 
   ########################################
@@ -550,19 +662,19 @@
   services.mako = {
     enable = true;
     settings = {
+      # Omarchy style (square corners, wider)
       anchor = "top-right";
-      width = 350;
-      height = 100;
-      margin = "10";
-      padding = "15";
+      width = 420;
+      padding = "10,15";
+      margin = "20";
       border-size = 2;
-      border-radius = 8;
+      border-radius = 0; # Square corners
       default-timeout = 5000;
       max-visible = 5;
       layer = "overlay";
       icons = true;
-      max-icon-size = 48;
-      font = "CaskaydiaCove Nerd Font 11";
+      max-icon-size = 32;
+      font = "sans-serif 14";
     };
   };
 }
