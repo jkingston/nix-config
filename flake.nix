@@ -64,12 +64,15 @@
             ./hosts/${name}/default.nix
 
             # Apply claude-code overlay and allow unfree (required for useGlobalPkgs)
-            {
-              nixpkgs.overlays = [ claude-code.overlays.default ];
-              nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) [
-                "claude-code"
-              ];
-            }
+            (
+              { lib, ... }:
+              {
+                nixpkgs.overlays = [ claude-code.overlays.default ];
+                nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+                  "claude-code"
+                ];
+              }
+            )
 
             # home-manager as a NixOS module
             home-manager.nixosModules.home-manager
