@@ -1,7 +1,8 @@
-{ pkgs, claude-code, ... }:
+{ pkgs, ... }:
 
 {
-  nixpkgs.overlays = [ claude-code.overlays.default ];
+  # Note: claude-code overlay is applied at system level in flake.nix
+  # (required when using home-manager.useGlobalPkgs = true)
 
   home.packages = with pkgs; [
     git

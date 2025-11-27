@@ -84,7 +84,7 @@
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username claude-code;
+                  inherit hostCfg username;
                 };
               };
             }
