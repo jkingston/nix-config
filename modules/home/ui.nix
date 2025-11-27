@@ -324,7 +324,7 @@
       enable = true;
       package = pkgs.rofi-wayland;
       terminal = "${pkgs.ghostty}/bin/ghostty";
-      theme = "catppuccin-mocha";
+      # theme handled by catppuccin module
       extraConfig = {
         modi = "drun,run,window";
         show-icons = true;
