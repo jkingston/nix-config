@@ -17,6 +17,8 @@
       url = "github:catppuccin/nix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    claude-code.url = "github:sadjow/claude-code-nix";
   };
 
   outputs =
@@ -25,6 +27,7 @@
       home-manager,
       stylix,
       catppuccin,
+      claude-code,
       ...
     }:
     let
@@ -51,6 +54,7 @@
               stylix
               username
               hostCfg
+              claude-code
               ;
           };
 
@@ -72,7 +76,7 @@
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username;
+                  inherit hostCfg username claude-code;
                 };
               };
             }
