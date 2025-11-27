@@ -1,8 +1,6 @@
-{ pkgs, claude-code, ... }:
+{ pkgs, ... }:
 
 {
-  nixpkgs.overlays = [ claude-code.overlays.default ];
-
   home.packages = with pkgs; [
     git
     gh

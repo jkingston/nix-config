@@ -63,6 +63,9 @@
             catppuccin.nixosModules.catppuccin
             ./hosts/${name}/default.nix
 
+            # Apply claude-code overlay at system level (required for useGlobalPkgs)
+            { nixpkgs.overlays = [ claude-code.overlays.default ]; }
+
             # home-manager as a NixOS module
             home-manager.nixosModules.home-manager
             {
