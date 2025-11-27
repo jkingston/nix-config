@@ -6,6 +6,7 @@
   home.packages = with pkgs; [
     git
     gh
+    delta
     direnv
     nix-direnv
     neovim
