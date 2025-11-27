@@ -41,6 +41,8 @@ in
     flavor = "mocha";
     accent = "blue";
     # Cursors disabled - using Bibata instead for better hyprcursor support
+    mako.enable = true;
+    waybar.enable = true;
   };
 
   gtk = {

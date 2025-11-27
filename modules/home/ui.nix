@@ -16,14 +16,12 @@
       wl-clipboard
       localsend
 
-      # HyprPanel dependencies
-      libgtop # for resource monitor
+      # Utilities
       bluez # for bluetooth
       grimblast # for screenshots
-      gpu-screen-recorder # for screen recording
       hyprpicker # for color picker
       hyprsunset # for blue light filter
-      btop # for dashboard stats
+      btop # system monitor
 
       # Browser / misc
       chromium
@@ -41,9 +39,9 @@
       swaybg
 
       # App launcher
-      rofi-wayland
-      rofi-power-menu
-      rofimoji # emoji picker
+      walker
+      libqalculate # calculator backend for walker
+      wlogout # power menu
     ];
 
     file = {
@@ -71,16 +69,6 @@
         executable = true;
       };
 
-      ".local/bin/rofi-clipboard" = {
-        text = ''
-          #!/usr/bin/env bash
-          cliphist list \
-            | rofi -dmenu -p "Clipboard" \
-            | cliphist decode \
-            | wl-copy
-        '';
-        executable = true;
-      };
     };
   };
 
@@ -121,13 +109,14 @@
         "variety" # wallpaper manager (auto-restores last wallpaper)
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
+        # Note: waybar and mako are started via systemd services
       ];
 
       # Keybinds (Omarchy - from official manual)
       bind = [
         # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
-        "$mod, SPACE, exec, rofi -show drun"
+        "$mod, SPACE, exec, walker"
         "$mod SHIFT, B, exec, chromium"
         "$mod SHIFT, N, exec, ghostty -e nvim"
         "$mod SHIFT, T, exec, ghostty -e btop"
@@ -205,21 +194,23 @@
         # Clipboard (Omarchy universal)
         "$mod, C, exec, wl-copy"
         "$mod, V, exec, wl-paste"
-        "$mod CTRL, V, exec, ~/.local/bin/rofi-clipboard" # clipboard manager
+        "$mod CTRL, V, exec, walker -m clipboard" # clipboard manager
 
         # Toggles
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
-        "$mod CTRL, N, exec, hyprsunset" # toggle nightlight
-        "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 hyprpanel" # toggle top bar
+        "$mod ALT, N, exec, hyprsunset" # toggle nightlight
+        "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar" # toggle top bar
         "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
 
-        # Notifications (HyprPanel handles notifications via built-in panel)
+        # Notifications (Mako)
+        "$mod CTRL, N, exec, makoctl dismiss" # dismiss notification
+        "$mod CTRL SHIFT, N, exec, makoctl dismiss -a" # dismiss all notifications
 
         # Emoji picker
-        "$mod CTRL, E, exec, rofimoji"
+        "$mod CTRL, E, exec, walker -m emojis"
 
         # System
-        "$mod, ESCAPE, exec, rofi -show power-menu -modi power-menu:rofi-power-menu" # lock/suspend/restart/shutdown
+        "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
 
         # Mouse scroll for workspaces (Omarchy)
         "$mod, MOUSE_DOWN, workspace, e+1"
@@ -292,131 +283,286 @@
   };
 
   ########################################
-  ## Ghostty terminal
+  ## Config files (Ghostty, Walker)
   ########################################
 
-  xdg.configFile."ghostty/config".text = ''
-    font-family = JetBrainsMono Nerd Font
-    font-size = 11
-    theme = catppuccin-mocha
+  xdg.configFile = {
+    "ghostty/config".text = ''
+      font-family = CaskaydiaCove Nerd Font
+      font-size = 11
+      theme = catppuccin-mocha
 
-    window-decoration = none
-    window-padding-x = 8
-    window-padding-y = 8
-  '';
+      window-decoration = none
+      window-padding-x = 8
+      window-padding-y = 8
+    '';
+
+    "walker/config.toml".text = ''
+      placeholder = "Search..."
+      fullscreen = false
+      ssh_host_file = ""
+      terminal = "ghostty"
+
+      [search]
+      delay = 0
+      hide_icons = false
+
+      [activation_mode]
+      disabled = true
+
+      [builtins.applications]
+      weight = 5
+      name = "applications"
+      placeholder = "Applications"
+
+      [builtins.runner]
+      weight = 4
+      name = "runner"
+
+      [builtins.websearch]
+      weight = 1
+      name = "websearch"
+
+      [builtins.calc]
+      weight = 3
+
+      [builtins.clipboard]
+      weight = 4
+      max_entries = 50
+
+      [builtins.emojis]
+      weight = 2
+    '';
+
+    "walker/style.css".text = ''
+      /* Catppuccin Mocha */
+      @define-color base #1e1e2e;
+      @define-color surface0 #313244;
+      @define-color surface1 #45475a;
+      @define-color text #cdd6f4;
+      @define-color subtext0 #a6adc8;
+      @define-color blue #89b4fa;
+
+      window {
+        background-color: alpha(@base, 0.95);
+        border-radius: 12px;
+        border: 1px solid @surface0;
+      }
+
+      #box {
+        margin: 10px;
+      }
+
+      #search {
+        background-color: @surface0;
+        color: @text;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      #list {
+        background: transparent;
+        margin-top: 10px;
+      }
+
+      row {
+        padding: 8px 12px;
+        border-radius: 6px;
+      }
+
+      row:selected {
+        background-color: @surface1;
+      }
+
+      row label {
+        color: @text;
+      }
+
+      row:selected label {
+        color: @blue;
+      }
+    '';
+  };
 
   ########################################
-  ## Programs (rofi, hyprpanel, hyprlock)
+  ## Programs (waybar, hyprlock)
   ########################################
 
   programs = {
-    rofi = {
-      enable = true;
-      package = pkgs.rofi-wayland;
-      terminal = "${pkgs.ghostty}/bin/ghostty";
-      # theme handled by catppuccin module
-      extraConfig = {
-        modi = "drun,run,window";
-        show-icons = true;
-        drun-display-format = "{name}";
-        disable-history = false;
-        sorting-method = "fzf";
-      };
-    };
-
-    hyprpanel = {
+    waybar = {
       enable = true;
       systemd.enable = true;
 
-      settings = {
-        bar = {
-          launcher = {
-            autoDetectIcon = true;
-            icon = "󱄅";
+      settings.mainBar = {
+        layer = "top";
+        position = "top";
+        height = 28;
+        spacing = 4;
+
+        modules-left = [
+          "custom/launcher"
+          "hyprland/workspaces"
+          "hyprland/window"
+        ];
+        modules-center = [ "clock" ];
+        modules-right = [
+          "tray"
+          "bluetooth"
+          "network"
+          "pulseaudio"
+          "cpu"
+          "battery"
+        ];
+
+        "custom/launcher" = {
+          format = "󱄅";
+          on-click = "walker";
+          tooltip = false;
+        };
+
+        "hyprland/workspaces" = {
+          format = "{icon}";
+          format-icons = {
+            active = "●";
+            default = "○";
+            empty = "○";
           };
-          workspaces = {
-            show_icons = false;
-            showWsIcons = false;
-            show_numbered = true;
-            numbered_active_indicator = "highlight";
-          };
-          windowtitle = {
-            label = true;
-            truncation_size = 30;
-          };
-          network = {
-            showWifiInfo = true;
-            label = false;
-          };
-          bluetooth = {
-            label = false;
-          };
-          volume = {
-            label = false;
-          };
-          battery = {
-            label = true;
-          };
-          clock = {
-            format = "%H:%M";
-          };
-          notifications = {
-            show_total = true;
+          on-click = "activate";
+          sort-by-number = true;
+        };
+
+        "hyprland/window" = {
+          max-length = 40;
+          separate-outputs = true;
+        };
+
+        clock = {
+          format = "{:%H:%M}";
+          format-alt = "{:%A %d %B %Y}";
+          tooltip-format = "<tt>{calendar}</tt>";
+        };
+
+        battery = {
+          format = "{icon} {capacity}%";
+          format-icons = [
+            ""
+            ""
+            ""
+            ""
+            ""
+          ];
+          states = {
+            warning = 20;
+            critical = 10;
           };
         };
 
-        menus = {
-          clock = {
-            time = {
-              military = true;
-            };
-            weather.enabled = false;
-          };
-          dashboard = {
-            powermenu.avatar.image = "";
-            stats.enable_gpu = false;
-            shortcuts.enabled = false;
-            directories.enabled = false;
-          };
+        network = {
+          format-wifi = " {signalStrength}%";
+          format-ethernet = "";
+          format-disconnected = "󰤭";
+          tooltip-format-wifi = "{essid} ({signalStrength}%)";
+          on-click = "nm-connection-editor";
         };
 
-        theme = {
-          bar = {
-            transparent = true;
-            outer_spacing = "0.4em";
-            buttons = {
-              radius = "0.5em";
-            };
-          };
-          font = {
-            name = "JetBrainsMono Nerd Font";
-            size = "14px";
-          };
+        pulseaudio = {
+          format = "{icon} {volume}%";
+          format-muted = "";
+          format-icons.default = [
+            ""
+            ""
+            ""
+          ];
+          on-click = "pavucontrol";
         };
 
-        # Bar layout
-        "bar.layouts" = {
-          "*" = {
-            left = [
-              "dashboard"
-              "workspaces"
-              "windowtitle"
-            ];
-            middle = [ "media" ];
-            right = [
-              "volume"
-              "network"
-              "bluetooth"
-              "battery"
-              "systray"
-              "clock"
-              "notifications"
-            ];
-          };
+        cpu = {
+          format = " {usage}%";
+          interval = 3;
+          on-click = "ghostty -e btop";
+        };
+
+        bluetooth = {
+          format = "";
+          format-connected = " {num_connections}";
+          on-click = "blueman-manager";
+        };
+
+        tray = {
+          icon-size = 14;
+          spacing = 8;
         };
       };
+
+      style = ''
+        * {
+          font-family: "CaskaydiaCove Nerd Font";
+          font-size: 13px;
+          min-height: 0;
+        }
+
+        window#waybar {
+          background-color: alpha(@base, 0.9);
+          color: @text;
+          border-bottom: 1px solid @surface0;
+        }
+
+        .modules-left { margin-left: 8px; }
+        .modules-right { margin-right: 8px; }
+
+        #workspaces button {
+          padding: 0 6px;
+          margin: 2px;
+          color: @overlay0;
+          background: transparent;
+          border-radius: 4px;
+        }
+
+        #workspaces button.active {
+          color: @blue;
+          background: @surface0;
+        }
+
+        #clock, #battery, #cpu, #network, #pulseaudio, #bluetooth, #tray {
+          padding: 0 10px;
+          margin: 4px 2px;
+        }
+
+        #battery.warning { color: @yellow; }
+        #battery.critical { color: @red; }
+
+        #custom-launcher {
+          font-size: 16px;
+          padding: 0 12px;
+          color: @blue;
+        }
+      '';
     };
 
     hyprlock.enable = true;
+  };
+
+  ########################################
+  ## Mako notifications
+  ########################################
+
+  services.mako = {
+    enable = true;
+    settings = {
+      anchor = "top-right";
+      width = 350;
+      height = 100;
+      margin = "10";
+      padding = "15";
+      border-size = 2;
+      border-radius = 8;
+      default-timeout = 5000;
+      max-visible = 5;
+      layer = "overlay";
+      icons = true;
+      max-icon-size = 48;
+      font = "CaskaydiaCove Nerd Font 11";
+    };
   };
 }
