@@ -41,7 +41,7 @@ in
     flavor = "mocha";
     accent = "blue";
     mako.enable = true;
-    waybar.enable = true;
+    waybar.enable = false; # Using custom Omarchy styling
     bat.enable = true;
     fzf.enable = true;
     hyprlock.enable = true;
