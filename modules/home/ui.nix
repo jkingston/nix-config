@@ -601,6 +601,8 @@
 
         #workspaces button {
           all: initial;
+          font-family: 'JetBrainsMono Nerd Font';
+          background-color: @background;
           padding: 0 6px;
           margin: 0 1.5px;
           min-width: 9px;
@@ -619,7 +621,9 @@
         #battery,
         #pulseaudio,
         #power-profiles-daemon,
-        #custom-launcher {
+        #custom-launcher,
+        #network,
+        #bluetooth {
           min-width: 12px;
           margin: 0 7.5px;
         }
