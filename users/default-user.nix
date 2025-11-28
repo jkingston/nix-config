@@ -44,7 +44,7 @@ in
     waybar.enable = false; # Using custom Omarchy styling
     bat.enable = true;
     fzf.enable = true;
-    hyprlock.enable = true;
+    hyprlock.enable = false; # Using custom Omarchy styling
     wlogout.enable = true;
   };
 

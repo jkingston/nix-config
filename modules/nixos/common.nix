@@ -20,6 +20,9 @@
   i18n.defaultLocale = "en_GB.UTF-8";
   console.keyMap = "uk";
 
+  # PAM service for hyprlock screen locker
+  security.pam.services.hyprlock = { };
+
   services = {
     xserver.enable = false;
 
