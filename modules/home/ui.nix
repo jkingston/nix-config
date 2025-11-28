@@ -36,7 +36,7 @@
 
       # Wallpaper
       swww # wallpaper daemon
-      variety # wallpaper auto-rotator
+      waypaper # wallpaper picker GUI
 
       # App launcher
       walker
@@ -53,15 +53,6 @@
           else
             wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
           fi
-        '';
-        executable = true;
-      };
-
-      # Variety swww backend script
-      ".config/variety/scripts/set_wallpaper" = {
-        text = ''
-          #!/usr/bin/env bash
-          swww img "$1" --transition-type fade --transition-duration 1
         '';
         executable = true;
       };
@@ -119,7 +110,6 @@
 
       exec-once = [
         "swww-daemon" # wallpaper daemon
-        "variety" # wallpaper auto-rotator
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
@@ -149,17 +139,29 @@
         "$mod ALT, G, moveoutofgroup," # move out of group
         "$mod ALT, TAB, changegroupactive," # cycle group windows
 
-        # Focus (arrow keys - Omarchy)
+        # Focus (arrow keys)
         "$mod, LEFT, movefocus, l"
         "$mod, RIGHT, movefocus, r"
         "$mod, UP, movefocus, u"
         "$mod, DOWN, movefocus, d"
 
-        # Swap windows (Omarchy)
+        # Focus (vim keys)
+        "$mod, H, movefocus, l"
+        "$mod, L, movefocus, r"
+        "$mod, K, movefocus, u"
+        "$mod, J, movefocus, d"
+
+        # Swap windows (arrow keys)
         "$mod SHIFT, LEFT, swapwindow, l"
         "$mod SHIFT, RIGHT, swapwindow, r"
         "$mod SHIFT, UP, swapwindow, u"
         "$mod SHIFT, DOWN, swapwindow, d"
+
+        # Swap windows (vim keys)
+        "$mod SHIFT, H, swapwindow, l"
+        "$mod SHIFT, L, swapwindow, r"
+        "$mod SHIFT, K, swapwindow, u"
+        "$mod SHIFT, J, swapwindow, d"
 
         # Resize (Omarchy: Equal=grow left, Minus=grow right)
         "$mod, EQUAL, resizeactive, -100 0"
@@ -223,8 +225,8 @@
         # Emoji picker
         "$mod CTRL, E, exec, walker -m emojis"
 
-        # Wallpaper picker (Omarchy)
-        "$mod CTRL, W, exec, variety --preferences"
+        # Wallpaper picker
+        "$mod CTRL, W, exec, waypaper"
 
         # System
         "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
