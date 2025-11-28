@@ -18,6 +18,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
     claude-code.url = "github:sadjow/claude-code-nix";
   };
 
@@ -27,6 +29,7 @@
       home-manager,
       stylix,
       catppuccin,
+      nixos-hardware,
       claude-code,
       ...
     }:
@@ -61,6 +64,7 @@
           modules = [
             stylix.nixosModules.stylix
             catppuccin.nixosModules.catppuccin
+            nixos-hardware.nixosModules.framework-13th-gen-intel
             ./hosts/${name}/default.nix
 
             # Apply claude-code overlay and allow unfree (required for useGlobalPkgs)

@@ -43,6 +43,17 @@
     libinput.enable = true;
     upower.enable = true;
     dbus.packages = [ pkgs.iio-sensor-proxy ];
+
+    # Let Hyprland handle lid switch (don't let systemd intercept it)
+    logind = {
+      lidSwitch = "ignore";
+      lidSwitchExternalPower = "ignore";
+      lidSwitchDocked = "ignore";
+    };
+
+    # Framework laptop services
+    power-profiles-daemon.enable = true;
+    fwupd.enable = true;
   };
 
   programs = {
@@ -72,7 +83,13 @@
     loader.efi.canTouchEfiVariables = true;
 
     # Plymouth boot splash
-    plymouth.enable = true;
+    plymouth = {
+      enable = true;
+      extraConfig = ''
+        ShowDelay=0
+        DeviceTimeout=8
+      '';
+    };
 
     # Enable systemd in initrd for graphical LUKS prompt
     initrd.systemd.enable = true;
@@ -88,6 +105,7 @@
       "rd.systemd.show_status=false"
       "rd.udev.log_level=3"
       "udev.log_priority=3"
+      "vt.global_cursor_default=0" # Hide cursor during VT handoff
     ];
   };
 
@@ -136,6 +154,18 @@
 
     overlays.enable = false;
   };
+
+  # Intel Xe Graphics (Framework 13th gen)
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver # VA-API (iHD driver)
+      vpl-gpu-rt # QSV runtime
+      intel-compute-runtime # OpenCL
+    ];
+  };
+
+  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
 
   system.stateVersion = "25.05";
 }

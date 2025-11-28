@@ -122,7 +122,8 @@
         "variety" # wallpaper auto-rotator
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
-        # Note: waybar, mako, and hypridle are started via systemd services
+        "hypridle" # idle lock daemon (backup in case systemd service fails)
+        # Note: waybar and mako are started via systemd services
       ];
 
       # Keybinds (Omarchy - from official manual)
@@ -254,6 +255,9 @@
         ", XF86AudioPrev, exec, playerctl previous"
         ", XF86AudioPlay, exec, playerctl play-pause"
         ", XF86AudioPause, exec, playerctl play-pause"
+        # Lid switch - lock on close, wake display on open
+        ", switch:on:Lid Switch, exec, pidof hyprlock || hyprlock"
+        ", switch:off:Lid Switch, exec, hyprctl dispatch dpms on"
       ];
 
       # Omarchy styling
@@ -413,13 +417,12 @@
       settings.mainBar = {
         layer = "top";
         position = "top";
-        height = 28;
-        spacing = 4;
+        height = 26;
+        spacing = 0;
 
         modules-left = [
           "custom/launcher"
           "hyprland/workspaces"
-          "hyprland/window"
         ];
         modules-center = [ "clock" ];
         modules-right = [
@@ -428,6 +431,7 @@
           "network"
           "pulseaudio"
           "cpu"
+          "power-profiles-daemon"
           "battery"
         ];
 
@@ -438,130 +442,217 @@
         };
 
         "hyprland/workspaces" = {
+          on-click = "activate";
           format = "{icon}";
           format-icons = {
-            active = "●";
-            default = "○";
-            empty = "○";
+            "1" = "1";
+            "2" = "2";
+            "3" = "3";
+            "4" = "4";
+            "5" = "5";
+            "6" = "6";
+            "7" = "7";
+            "8" = "8";
+            "9" = "9";
+            "10" = "0";
+            active = "󱓻";
+            default = "";
           };
-          on-click = "activate";
-          sort-by-number = true;
-        };
-
-        "hyprland/window" = {
-          max-length = 40;
-          separate-outputs = true;
+          persistent-workspaces = {
+            "*" = 5;
+          };
         };
 
         clock = {
-          format = "{:%H:%M}";
-          format-alt = "{:%A %d %B %Y}";
-          tooltip-format = "<tt>{calendar}</tt>";
+          format = "{:%A %H:%M}";
+          format-alt = "{:%d %B %Y}";
+          tooltip = false;
+        };
+
+        network = {
+          format-icons = [
+            "󰤯"
+            "󰤟"
+            "󰤢"
+            "󰤥"
+            "󰤨"
+          ];
+          format = "{icon}";
+          format-wifi = "{icon}";
+          format-ethernet = "󰀂";
+          format-disconnected = "󰤮";
+          tooltip-format-wifi = "{essid} ({signalStrength}%)\n⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}";
+          tooltip-format-disconnected = "Disconnected";
+          interval = 3;
+          on-click = "nm-connection-editor";
         };
 
         battery = {
-          format = "{icon} {capacity}%";
-          format-icons = [
-            ""
-            ""
-            ""
-            ""
-            ""
-          ];
+          format = "{capacity}% {icon}";
+          format-discharging = "{icon}";
+          format-charging = "{icon}";
+          format-plugged = "";
+          format-icons = {
+            charging = [
+              "󰢜"
+              "󰂆"
+              "󰂇"
+              "󰂈"
+              "󰢝"
+              "󰂉"
+              "󰢞"
+              "󰂊"
+              "󰂋"
+              "󰂅"
+            ];
+            default = [
+              "󰁺"
+              "󰁻"
+              "󰁼"
+              "󰁽"
+              "󰁾"
+              "󰁿"
+              "󰂀"
+              "󰂁"
+              "󰂂"
+              "󰁹"
+            ];
+          };
+          format-full = "󰂅";
+          tooltip-format-discharging = "{power:.1f}W ↓ {capacity}%";
+          tooltip-format-charging = "{power:.1f}W ↑ {capacity}%";
+          interval = 5;
+          on-click = "wlogout";
           states = {
             warning = 20;
             critical = 10;
           };
         };
 
-        network = {
-          format-wifi = " {signalStrength}%";
-          format-ethernet = "";
-          format-disconnected = "󰤭";
-          tooltip-format-wifi = "{essid} ({signalStrength}%)";
-          on-click = "nm-connection-editor";
-        };
-
         pulseaudio = {
-          format = "{icon} {volume}%";
+          format = "{icon}";
           format-muted = "";
-          format-icons.default = [
-            ""
-            ""
-            ""
-          ];
+          format-icons = {
+            default = [
+              ""
+              ""
+              ""
+            ];
+          };
+          tooltip-format = "Volume: {volume}%";
+          scroll-step = 5;
           on-click = "pavucontrol";
+          on-click-right = "pamixer -t";
         };
 
         cpu = {
-          format = " {usage}%";
-          interval = 3;
+          interval = 5;
+          format = "󰍛";
           on-click = "ghostty -e btop";
         };
 
         bluetooth = {
           format = "";
-          format-connected = " {num_connections}";
+          format-disabled = "󰂲";
+          format-connected = "󰂱";
+          tooltip-format = "Devices: {num_connections}";
           on-click = "blueman-manager";
         };
 
         tray = {
-          icon-size = 14;
-          spacing = 8;
+          icon-size = 12;
+          spacing = 17;
+        };
+
+        "power-profiles-daemon" = {
+          format = "{icon}";
+          tooltip-format = "Profile: {profile}";
+          format-icons = {
+            default = "";
+            performance = "";
+            balanced = "";
+            power-saver = "";
+          };
         };
       };
 
-      # Omarchy-style Waybar (square, minimal)
+      # Omarchy Catppuccin style
       style = ''
+        @define-color foreground #cdd6f4;
+        @define-color background #181824;
+
         * {
-          font-family: "JetBrainsMono Nerd Font";
-          font-size: 12px;
+          background-color: @background;
+          color: @foreground;
+          border: none;
+          border-radius: 0;
           min-height: 0;
-          border-radius: 0; /* Square corners */
+          font-family: 'JetBrainsMono Nerd Font';
+          font-size: 12px;
         }
 
-        window#waybar {
-          background-color: @base;
-          color: @text;
+        .modules-left {
+          margin-left: 8px;
         }
 
-        .modules-left { margin-left: 8px; }
-        .modules-right { margin-right: 8px; }
+        .modules-right {
+          margin-right: 8px;
+        }
 
         #workspaces button {
+          all: initial;
           padding: 0 6px;
           margin: 0 1.5px;
-          color: @overlay0;
-          background: transparent;
+          min-width: 9px;
+          color: @foreground;
+        }
+
+        #workspaces button.empty {
+          opacity: 0.5;
         }
 
         #workspaces button.active {
-          color: @blue;
-          background: @surface0;
+          color: #89b4fa;
         }
 
-        #workspaces button.empty { opacity: 0.5; }
-
-        #clock, #battery, #cpu, #network, #pulseaudio, #bluetooth {
-          padding: 0 10px;
-          margin: 4px 2px;
-        }
-
-        #tray { margin-right: 16px; }
-        #bluetooth { margin-right: 17px; }
-        #network { margin-right: 13px; }
-        #clock { margin-left: 8.75px; }
-
-        #battery.warning { color: @yellow; }
-        #battery.critical { color: @red; }
-
+        #cpu,
+        #battery,
+        #pulseaudio,
+        #power-profiles-daemon,
         #custom-launcher {
-          font-size: 16px;
-          padding: 0 12px;
-          color: @blue;
+          min-width: 12px;
+          margin: 0 7.5px;
         }
 
-        tooltip { padding: 2px; }
+        #tray {
+          margin-right: 16px;
+        }
+
+        #bluetooth {
+          margin-right: 17px;
+        }
+
+        #network {
+          margin-right: 13px;
+        }
+
+        #clock {
+          margin-left: 8.75px;
+        }
+
+        #battery.warning {
+          color: #f9e2af;
+        }
+
+        #battery.critical {
+          color: #f38ba8;
+        }
+
+        tooltip {
+          padding: 2px;
+          background-color: @background;
+          color: @foreground;
+        }
       '';
     };
 
@@ -661,7 +752,7 @@
         # Lock screen after 5 minutes
         {
           timeout = 300;
-          on-timeout = "loginctl lock-session";
+          on-timeout = "pidof hyprlock || hyprlock";
         }
         # Turn off display after 5.5 minutes
         {
