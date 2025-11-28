@@ -132,6 +132,11 @@
     swappy
   ];
 
+  # Fonts - JetBrainsMono Nerd Font for Waybar icons
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+  ];
+
   # Stylix - only for wallpaper and fonts (catppuccin handles the rest)
   stylix = {
     enable = true;
