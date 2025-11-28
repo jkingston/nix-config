@@ -34,9 +34,9 @@
       # Dev tools (Omarchy)
       lazydocker
 
-      # Wallpaper (swww + waypaper - Omarchy style)
-      swww
-      waypaper
+      # Wallpaper
+      swww # wallpaper daemon
+      variety # wallpaper auto-rotator
 
       # App launcher
       walker
@@ -57,6 +57,29 @@
         executable = true;
       };
 
+      # Variety swww backend script
+      ".config/variety/scripts/set_wallpaper" = {
+        text = ''
+          #!/usr/bin/env bash
+          swww img "$1" --transition-type fade --transition-duration 1
+        '';
+        executable = true;
+      };
+
+      # Catppuccin wallpaper collections (~386 wallpapers)
+      "Pictures/Wallpapers/catppuccin-mocha".source = pkgs.fetchFromGitHub {
+        owner = "orangci";
+        repo = "walls-catppuccin-mocha";
+        rev = "master";
+        sha256 = "0bzs76iqhxa53azlayb8rwmaxakwv0fz08lh9dfykh2w4hfikqrp";
+      };
+
+      "Pictures/Wallpapers/catppuccin-official".source = pkgs.fetchFromGitHub {
+        owner = "zhichaoh";
+        repo = "catppuccin-wallpapers";
+        rev = "main";
+        sha256 = "0rd6hfd88bsprjg68saxxlgf2c2lv1ldyr6a8i7m4lgg6nahbrw7";
+      };
     };
   };
 
@@ -96,7 +119,7 @@
 
       exec-once = [
         "swww-daemon" # wallpaper daemon
-        "waypaper --restore" # restore last wallpaper
+        "variety" # wallpaper auto-rotator
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         # Note: waybar, mako, and hypridle are started via systemd services
@@ -200,7 +223,7 @@
         "$mod CTRL, E, exec, walker -m emojis"
 
         # Wallpaper picker (Omarchy)
-        "$mod CTRL, W, exec, waypaper"
+        "$mod CTRL, W, exec, variety --preferences"
 
         # System
         "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
@@ -236,7 +259,7 @@
       # Omarchy styling
       general = {
         gaps_in = 5;
-        gaps_out = 10;
+        gaps_out = 5;
         border_size = 2;
         # Colors set by catppuccin module
       };
@@ -282,7 +305,7 @@
   xdg.configFile = {
     "ghostty/config".text = ''
       font-family = JetBrainsMono Nerd Font
-      font-size = 9
+      font-size = 10
       theme = catppuccin-mocha
 
       window-decoration = none
