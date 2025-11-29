@@ -173,7 +173,10 @@
     ];
   };
 
-  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
+  environment.sessionVariables = {
+    LIBVA_DRIVER_NAME = "iHD";
+    NIXOS_OZONE_WL = "1"; # Enable Wayland for Chromium/Electron apps
+  };
 
   system.stateVersion = "25.05";
 }

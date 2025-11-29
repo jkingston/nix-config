@@ -22,9 +22,13 @@
       hyprpicker # for color picker
       hyprsunset # for blue light filter
       btop # system monitor
+      swayosd # OSD for volume/brightness
 
-      # Browser / misc
-      chromium
+      # TUI managers (Omarchy style)
+      # nmtui for WiFi (comes with networkmanager)
+      bluetui # Bluetooth TUI
+
+      # Misc
       nautilus # file manager
 
       # Media control (Omarchy)
@@ -110,6 +114,7 @@
 
       exec-once = [
         "swww-daemon" # wallpaper daemon
+        "swayosd-server" # OSD for volume/brightness
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
@@ -242,14 +247,14 @@
         "$mod, mouse:273, resizewindow" # Super + right click to resize
       ];
 
-      # Media keys (Omarchy-style)
+      # Media keys with SwayOSD visual feedback
       bindel = [
-        ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-        ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-        ", XF86MonBrightnessUp, exec, brightnessctl set 5%+"
-        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+        ", XF86AudioRaiseVolume, exec, swayosd-client --output-volume raise"
+        ", XF86AudioLowerVolume, exec, swayosd-client --output-volume lower"
+        ", XF86AudioMute, exec, swayosd-client --output-volume mute-toggle"
+        ", XF86AudioMicMute, exec, swayosd-client --input-volume mute-toggle"
+        ", XF86MonBrightnessUp, exec, swayosd-client --brightness raise"
+        ", XF86MonBrightnessDown, exec, swayosd-client --brightness lower"
       ];
 
       bindl = [
@@ -261,6 +266,11 @@
         ", switch:on:Lid Switch, exec, pidof hyprlock || hyprlock"
         ", switch:off:Lid Switch, exec, hyprctl dispatch dpms on"
       ];
+
+      # Focus browser when clicking URLs from another workspace
+      misc = {
+        focus_on_activate = true;
+      };
 
       # Omarchy styling
       general = {
@@ -292,15 +302,37 @@
 
       animations = {
         enabled = true;
-        bezier = "ease, 0.25, 0.1, 0.25, 1";
+
+        # Smooth bezier curves for polished feel
+        bezier = [
+          "wind, 0.05, 0.9, 0.1, 1.05"
+          "winIn, 0.1, 1.1, 0.1, 1.1"
+          "winOut, 0.3, -0.3, 0, 1"
+          "liner, 1, 1, 1, 1"
+        ];
 
         animation = [
-          "windows, 1, 3, ease, slide"
-          "windowsOut, 1, 3, ease, popin 80%"
-          "fade, 1, 3, ease"
-          "workspaces, 1, 3, ease, slide"
+          "windows, 1, 6, wind, slide"
+          "windowsIn, 1, 6, winIn, slide"
+          "windowsOut, 1, 5, winOut, slide"
+          "windowsMove, 1, 5, wind, slide"
+          "border, 1, 1, liner"
+          "fade, 1, 10, default"
+          "workspaces, 1, 5, wind"
         ];
       };
+
+      # Floating TUI overlay windows (Omarchy style)
+      # Note: Ghostty requires reverse-domain format for --class (GTK requirement)
+      windowrulev2 = [
+        "float, class:^(com\\.floating\\.tui)$"
+        "center, class:^(com\\.floating\\.tui)$"
+        "size 800 600, class:^(com\\.floating\\.tui)$"
+        # Also match initialClass for newly spawned windows
+        "float, initialClass:^(com\\.floating\\.tui)$"
+        "center, initialClass:^(com\\.floating\\.tui)$"
+        "size 800 600, initialClass:^(com\\.floating\\.tui)$"
+      ];
     };
   };
 
@@ -412,6 +444,17 @@
   ########################################
 
   programs = {
+    # Chromium with Wayland touchpad gestures
+    chromium = {
+      enable = true;
+      commandLineArgs = [
+        "--enable-features=TouchpadOverscrollHistoryNavigation"
+      ];
+    };
+
+    # Gazelle - modern NetworkManager TUI (replaces nmtui)
+    gazelle.enable = true;
+
     waybar = {
       enable = true;
       systemd.enable = true;
@@ -486,7 +529,7 @@
           tooltip-format-wifi = "{essid} ({signalStrength}%)\n⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}";
           tooltip-format-disconnected = "Disconnected";
           interval = 3;
-          on-click = "nm-connection-editor";
+          on-click = "ghostty --class=com.floating.tui -e gazelle";
         };
 
         battery = {
@@ -558,22 +601,23 @@
           format-disabled = "󰂲";
           format-connected = "󰂱";
           tooltip-format = "Devices: {num_connections}";
-          on-click = "blueman-manager";
+          on-click = "ghostty --class=com.floating.tui -e bluetui";
         };
 
         tray = {
-          icon-size = 12;
-          spacing = 17;
+          icon-size = 16;
+          spacing = 8;
+          show-passive-items = true;
         };
 
         "power-profiles-daemon" = {
           format = "{icon}";
           tooltip-format = "Profile: {profile}";
           format-icons = {
-            default = "";
-            performance = "";
-            balanced = "";
-            power-saver = "";
+            default = "󰗑";
+            performance = "󰓅";
+            balanced = "󰾅";
+            power-saver = "󰾆";
           };
         };
       };

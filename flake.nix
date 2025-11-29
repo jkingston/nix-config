@@ -21,6 +21,8 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     claude-code.url = "github:sadjow/claude-code-nix";
+
+    gazelle.url = "github:Zeus-Deus/gazelle-tui";
   };
 
   outputs =
@@ -31,6 +33,7 @@
       catppuccin,
       nixos-hardware,
       claude-code,
+      gazelle,
       ...
     }:
     let
@@ -93,7 +96,7 @@
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username;
+                  inherit hostCfg username gazelle;
                 };
               };
             }

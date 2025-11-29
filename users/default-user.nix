@@ -3,6 +3,7 @@
   pkgs,
   hostCfg,
   username,
+  gazelle,
   ...
 }:
 
@@ -63,6 +64,7 @@ in
   };
 
   imports = [
+    gazelle.homeModules.gazelle
     ../modules/home/ui.nix
     ../modules/home/dev.nix
     ../modules/home/shell.nix
