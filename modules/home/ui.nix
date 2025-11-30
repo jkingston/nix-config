@@ -1,5 +1,6 @@
 {
   pkgs,
+  gazelle,
   ...
 }:
 
@@ -7,46 +8,51 @@
   imports = [ ];
 
   home = {
-    packages = with pkgs; [
-      # Core UI tools
-      ghostty
-      hyprlock
-      wvkbd
-      cliphist
-      wl-clipboard
-      localsend
+    packages =
+      with pkgs;
+      [
+        # Core UI tools
+        ghostty
+        hyprlock
+        wvkbd
+        cliphist
+        wl-clipboard
+        localsend
 
-      # Utilities
-      bluez # for bluetooth
-      grimblast # for screenshots
-      hyprpicker # for color picker
-      hyprsunset # for blue light filter
-      btop # system monitor
-      swayosd # OSD for volume/brightness
+        # Utilities
+        bluez # for bluetooth
+        grimblast # for screenshots
+        hyprpicker # for color picker
+        hyprsunset # for blue light filter
+        btop # system monitor
+        swayosd # OSD for volume/brightness
 
-      # TUI managers (Omarchy style)
-      # nmtui for WiFi (comes with networkmanager)
-      bluetui # Bluetooth TUI
+        # TUI managers (Omarchy style)
+        # nmtui for WiFi (comes with networkmanager)
+        bluetui # Bluetooth TUI
 
-      # Misc
-      nautilus # file manager
+        # Misc
+        nautilus # file manager
 
-      # Media control (Omarchy)
-      playerctl
-      brightnessctl
+        # Media control (Omarchy)
+        playerctl
+        brightnessctl
 
-      # Dev tools (Omarchy)
-      lazydocker
+        # Dev tools (Omarchy)
+        lazydocker
 
-      # Wallpaper
-      swww # wallpaper daemon
-      waypaper # wallpaper picker GUI
+        # Wallpaper
+        swww # wallpaper daemon
+        waypaper # wallpaper picker GUI
 
-      # App launcher
-      walker
-      libqalculate # calculator backend for walker
-      wlogout # power menu
-    ];
+        # App launcher
+        walker
+        libqalculate # calculator backend for walker
+        wlogout # power menu
+      ]
+      ++ [
+        gazelle.packages.${pkgs.system}.default # WiFi TUI
+      ];
 
     file = {
       ".local/bin/osk-toggle" = {
@@ -303,22 +309,22 @@
       animations = {
         enabled = true;
 
-        # Smooth bezier curves for polished feel
+        # Smooth bezier curves (no bounce/overshoot)
         bezier = [
-          "wind, 0.05, 0.9, 0.1, 1.05"
-          "winIn, 0.1, 1.1, 0.1, 1.1"
-          "winOut, 0.3, -0.3, 0, 1"
+          "smooth, 0.25, 0.1, 0.25, 1.0"
+          "smoothOut, 0.0, 0.0, 0.2, 1.0"
+          "smoothIn, 0.4, 0.0, 1.0, 1.0"
           "liner, 1, 1, 1, 1"
         ];
 
         animation = [
-          "windows, 1, 6, wind, slide"
-          "windowsIn, 1, 6, winIn, slide"
-          "windowsOut, 1, 5, winOut, slide"
-          "windowsMove, 1, 5, wind, slide"
+          "windows, 1, 6, smooth, slide"
+          "windowsIn, 1, 6, smoothOut, slide"
+          "windowsOut, 1, 5, smoothIn, slide"
+          "windowsMove, 1, 5, smooth, slide"
           "border, 1, 1, liner"
           "fade, 1, 10, default"
-          "workspaces, 1, 5, wind"
+          "workspaces, 1, 5, smooth"
         ];
       };
 
