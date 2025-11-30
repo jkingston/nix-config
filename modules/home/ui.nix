@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   gazelle,
   ...
@@ -81,9 +82,10 @@
 
           if [ -n "$selected" ]; then
             # Update wpaperd config to use selected file
-            CONFIG="$HOME/.config/wpaperd/config.toml"
+            CONFIG="$HOME/.config/wpaperd/wallpaper.toml"
             if [ -f "$CONFIG" ]; then
-              sed -i "s|^path = .*|path = \"$selected\"|" "$CONFIG"
+              # Replace path in [default] section only
+              sed -i '/^\[default\]/,/^\[/{s|^path = .*|path = "'"$selected"'"|;}' "$CONFIG"
               wpaperctl reload
             fi
           fi
@@ -919,7 +921,7 @@
     enable = true;
     settings = {
       default = {
-        path = "~/Pictures/Wallpapers";
+        path = "${config.home.homeDirectory}/Pictures/Wallpapers";
         duration = "1h"; # Auto-rotate hourly
         sorting = "random";
         transition = {
