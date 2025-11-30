@@ -41,9 +41,8 @@
         # Dev tools (Omarchy)
         lazydocker
 
-        # Wallpaper
-        swww # wallpaper daemon
-        waypaper # wallpaper picker GUI
+        # Wallpaper TUI
+        chafa # terminal image preview for fzf
 
         # App launcher
         walker
@@ -63,6 +62,66 @@
           else
             wvkbd-mobintl --landscape --opacity 0.98 --rounding 10 --hidden &
           fi
+        '';
+        executable = true;
+      };
+
+      # Wallpaper TUI picker using fzf + chafa
+      ".local/bin/wallpaper-picker" = {
+        text = ''
+          #!/usr/bin/env bash
+          WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+
+          # Find all images recursively
+          selected=$(find "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | \
+            fzf --preview 'chafa -s 80x24 {}' \
+                --preview-window=right:60% \
+                --prompt="Wallpaper: " \
+                --height=100%)
+
+          if [ -n "$selected" ]; then
+            # Update wpaperd config to use selected file
+            CONFIG="$HOME/.config/wpaperd/config.toml"
+            if [ -f "$CONFIG" ]; then
+              sed -i "s|^path = .*|path = \"$selected\"|" "$CONFIG"
+              wpaperctl reload
+            fi
+          fi
+        '';
+        executable = true;
+      };
+
+      # Keybind help overlay (Omarchy-style using Walker)
+      ".local/bin/keybind-help" = {
+        text = ''
+          #!/usr/bin/env bash
+          # Display keybindings in Walker dmenu
+          hyprctl -j binds | jq -r '.[] | "\(.modmask)|\(.key)|\(.dispatcher)|\(.arg)"' | \
+            awk -F'|' '{
+              mod=""
+              if ($1 == 0) mod=""
+              else if ($1 == 1) mod="SHIFT"
+              else if ($1 == 4) mod="CTRL"
+              else if ($1 == 8) mod="ALT"
+              else if ($1 == 64) mod="SUPER"
+              else if ($1 == 65) mod="SUPER SHIFT"
+              else if ($1 == 68) mod="SUPER CTRL"
+              else if ($1 == 69) mod="SUPER SHIFT CTRL"
+              else if ($1 == 72) mod="SUPER ALT"
+              else if ($1 == 73) mod="SUPER SHIFT ALT"
+              else mod="MOD " $1
+
+              key = $2
+              gsub(/^[ \t]+|[ \t]+$/, "", key)
+
+              action = $3 " " $4
+              gsub(/^[ \t]+|[ \t]+$/, "", action)
+
+              if (key != "" && action != " ") {
+                if (mod != "") printf "%-25s → %s\n", mod " + " key, action
+                else printf "%-25s → %s\n", key, action
+              }
+            }' | sort -u | walker --dmenu -p 'Keybindings'
         '';
         executable = true;
       };
@@ -119,12 +178,11 @@
       "$mod" = "SUPER";
 
       exec-once = [
-        "swww-daemon" # wallpaper daemon
         "swayosd-server" # OSD for volume/brightness
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
-        # Note: waybar and mako are started via systemd services
+        # Note: waybar, mako, and wpaperd are started via systemd services
       ];
 
       # Keybinds (Omarchy - from official manual)
@@ -236,8 +294,13 @@
         # Emoji picker
         "$mod CTRL, E, exec, walker -m emojis"
 
-        # Wallpaper picker
-        "$mod CTRL, W, exec, waypaper"
+        # Wallpaper controls (wpaperd)
+        "$mod CTRL, W, exec, ghostty --class=com.floating.tui -e wallpaper-picker"
+        "$mod ALT, W, exec, wpaperctl next"
+        "$mod ALT SHIFT, W, exec, wpaperctl previous"
+
+        # Keybind help (Omarchy-style)
+        "$mod, slash, exec, keybind-help"
 
         # System
         "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
@@ -845,6 +908,25 @@
       icons = true;
       max-icon-size = 32;
       font = "sans-serif 14";
+    };
+  };
+
+  ########################################
+  ## Wpaperd wallpaper daemon
+  ########################################
+
+  services.wpaperd = {
+    enable = true;
+    settings = {
+      default = {
+        path = "~/Pictures/Wallpapers";
+        duration = "1h"; # Auto-rotate hourly
+        sorting = "random";
+        transition = {
+          type = "fade";
+          duration = 500;
+        };
+      };
     };
   };
 }
