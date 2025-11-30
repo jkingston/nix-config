@@ -295,12 +295,12 @@
         "$mod CTRL, E, exec, walker -m emojis"
 
         # Wallpaper controls (wpaperd)
-        "$mod CTRL, W, exec, ghostty --class=com.floating.tui -e wallpaper-picker"
+        "$mod CTRL, W, exec, ghostty --class=com.floating.tui -e ~/.local/bin/wallpaper-picker"
         "$mod ALT, W, exec, wpaperctl next"
         "$mod ALT SHIFT, W, exec, wpaperctl previous"
 
         # Keybind help (Omarchy-style)
-        "$mod, slash, exec, keybind-help"
+        "$mod, slash, exec, ~/.local/bin/keybind-help"
 
         # System
         "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
