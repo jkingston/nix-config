@@ -73,8 +73,8 @@
           #!/usr/bin/env bash
           WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
 
-          # Find all images recursively
-          selected=$(find "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | \
+          # Find all images recursively (-L follows symlinks from Nix store)
+          selected=$(find -L "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | \
             fzf --preview 'chafa -s 80x24 {}' \
                 --preview-window=right:60% \
                 --prompt="Wallpaper: " \
@@ -88,6 +88,24 @@
               sed -i '/^\[default\]/,/^\[/{s|^path = .*|path = "'"$selected"'"|;}' "$CONFIG"
               wpaperctl reload
             fi
+          fi
+        '';
+        executable = true;
+      };
+
+      # Random wallpaper script (used by startup and timer)
+      ".local/bin/wallpaper-random" = {
+        text = ''
+          #!/usr/bin/env bash
+          WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+          CONFIG="$HOME/.config/wpaperd/wallpaper.toml"
+
+          # Pick random image from all subdirs (-L follows symlinks)
+          selected=$(find -L "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | shuf -n1)
+
+          if [ -n "$selected" ] && [ -f "$CONFIG" ]; then
+            sed -i '/^\[default\]/,/^\[/{s|^path = .*|path = "'"$selected"'"|;}' "$CONFIG"
+            wpaperctl reload 2>/dev/null || true
           fi
         '';
         executable = true;
@@ -185,6 +203,7 @@
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
         # Note: waybar, mako, and wpaperd are started via systemd services
+        "sleep 2 && ~/.local/bin/wallpaper-random" # Set initial random wallpaper
       ];
 
       # Keybinds (Omarchy - from official manual)
@@ -921,8 +940,10 @@
     enable = true;
     settings = {
       default = {
-        path = "${config.home.homeDirectory}/Pictures/Wallpapers";
-        duration = "1h"; # Auto-rotate hourly
+        # Initial path (will be updated by wallpaper-random script)
+        # wpaperd doesn't recurse into subdirs, so we use our own rotation
+        path = "${config.home.homeDirectory}/Pictures/Wallpapers/catppuccin-mocha";
+        # No duration - rotation handled by systemd timer with find -L
         sorting = "random";
         transition = {
           type = "fade";
@@ -930,5 +951,26 @@
         };
       };
     };
+  };
+
+  ########################################
+  ## Wallpaper rotation timer
+  ########################################
+
+  systemd.user.services.wallpaper-rotate = {
+    Unit.Description = "Rotate wallpaper randomly";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${config.home.homeDirectory}/.local/bin/wallpaper-random";
+    };
+  };
+
+  systemd.user.timers.wallpaper-rotate = {
+    Unit.Description = "Rotate wallpaper every hour";
+    Timer = {
+      OnCalendar = "hourly";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
   };
 }
