@@ -42,8 +42,9 @@
         # Dev tools (Omarchy)
         lazydocker
 
-        # Wallpaper TUI
-        chafa # terminal image preview for fzf
+        # Wallpaper
+        swww # wallpaper daemon (CLI-based, no config file needed)
+        waypaper # GUI wallpaper picker with gallery view
 
         # App launcher
         walker
@@ -67,45 +68,23 @@
         executable = true;
       };
 
-      # Wallpaper TUI picker using fzf + chafa
-      ".local/bin/wallpaper-picker" = {
-        text = ''
-          #!/usr/bin/env bash
-          WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
-
-          # Find all images recursively (-L follows symlinks from Nix store)
-          selected=$(find -L "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | \
-            fzf --preview 'chafa --clear -s "''${FZF_PREVIEW_COLUMNS}x''${FZF_PREVIEW_LINES}" {}' \
-                --preview-window=right:50% \
-                --prompt="Wallpaper: " \
-                --height=100%)
-
-          if [ -n "$selected" ]; then
-            # Update wpaperd config to use selected file
-            CONFIG="$HOME/.config/wpaperd/wallpaper.toml"
-            if [ -f "$CONFIG" ]; then
-              # Replace path in [default] section only
-              sed -i '/^\[default\]/,/^\[/{s|^path = .*|path = "'"$selected"'"|;}' "$CONFIG"
-              wpaperctl reload
-            fi
-          fi
-        '';
-        executable = true;
-      };
-
-      # Random wallpaper script (used by startup and timer)
+      # Random wallpaper script (used by Super+Alt+W and timer)
       ".local/bin/wallpaper-random" = {
         text = ''
           #!/usr/bin/env bash
           WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
-          CONFIG="$HOME/.config/wpaperd/wallpaper.toml"
 
           # Pick random image from all subdirs (-L follows symlinks)
           selected=$(find -L "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | shuf -n1)
 
-          if [ -n "$selected" ] && [ -f "$CONFIG" ]; then
-            sed -i '/^\[default\]/,/^\[/{s|^path = .*|path = "'"$selected"'"|;}' "$CONFIG"
-            wpaperctl reload 2>/dev/null || true
+          if [ -n "$selected" ]; then
+            # Trendy cursor-position grow transition with bouncy bezier
+            swww img "$selected" \
+              --transition-type grow \
+              --transition-pos "$(hyprctl cursorpos)" \
+              --transition-duration 0.7 \
+              --transition-fps 60 \
+              --transition-bezier .43,1.19,1,.4
           fi
         '';
         executable = true;
@@ -202,8 +181,8 @@
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
-        # Note: waybar, mako, and wpaperd are started via systemd services
-        "sleep 2 && ~/.local/bin/wallpaper-random" # Set initial random wallpaper
+        # Note: waybar and mako are started via systemd services
+        "swww-daemon && ~/.local/bin/wallpaper-random" # Start wallpaper daemon and set initial wallpaper
       ];
 
       # Keybinds (Omarchy - from official manual)
@@ -315,10 +294,9 @@
         # Emoji picker
         "$mod CTRL, E, exec, walker -m emojis"
 
-        # Wallpaper controls (wpaperd)
-        "$mod CTRL, W, exec, ghostty --class=com.floating.tui -e ~/.local/bin/wallpaper-picker"
-        "$mod ALT, W, exec, wpaperctl next"
-        "$mod ALT SHIFT, W, exec, wpaperctl previous"
+        # Wallpaper controls (swww + waypaper)
+        "$mod CTRL, W, exec, waypaper"
+        "$mod ALT, W, exec, ~/.local/bin/wallpaper-random"
 
         # Keybind help (Omarchy-style)
         "$mod, slash, exec, ~/.local/bin/keybind-help"
@@ -422,6 +400,10 @@
         "float, initialClass:^(com\\.floating\\.tui)$"
         "center, initialClass:^(com\\.floating\\.tui)$"
         "size 800 600, initialClass:^(com\\.floating\\.tui)$"
+        # Waypaper wallpaper picker overlay
+        "float, class:^(waypaper)$"
+        "center, class:^(waypaper)$"
+        "size 900 700, class:^(waypaper)$"
       ];
     };
   };
@@ -439,6 +421,23 @@
       window-decoration = none
       window-padding-x = 8
       window-padding-y = 8
+    '';
+
+    # Waypaper - GUI wallpaper picker with swww backend
+    "waypaper/config.ini".text = ''
+      [Settings]
+      folder = ~/Pictures/Wallpapers
+      backend = swww
+      monitors = All
+      fill = Fill
+      sort = name
+      color = #1e1e2e
+      subfolders = True
+      swww_transition_type = grow
+      swww_transition_step = 90
+      swww_transition_duration = 0.7
+      swww_transition_fps = 60
+      swww_transition_angle = 0
     '';
 
     "walker/config.toml".text = ''
@@ -933,25 +932,7 @@
   };
 
   ########################################
-  ## Wpaperd wallpaper daemon
-  ########################################
-
-  services.wpaperd = {
-    enable = true;
-    settings = {
-      default = {
-        # Initial path (will be updated by wallpaper-random script)
-        # wpaperd doesn't recurse into subdirs, so we use our own rotation
-        path = "${config.home.homeDirectory}/Pictures/Wallpapers/catppuccin-mocha";
-        # No duration - rotation handled by systemd timer with find -L
-        sorting = "random";
-        transition_time = 500; # milliseconds for fade transition
-      };
-    };
-  };
-
-  ########################################
-  ## Wallpaper rotation timer
+  ## Wallpaper rotation timer (swww)
   ########################################
 
   systemd.user.services.wallpaper-rotate = {
