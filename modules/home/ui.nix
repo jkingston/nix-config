@@ -75,8 +75,8 @@
 
           # Find all images recursively (-L follows symlinks from Nix store)
           selected=$(find -L "$WALLPAPER_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | \
-            fzf --preview 'chafa -s 80x24 {}' \
-                --preview-window=right:60% \
+            fzf --preview 'chafa --clear -s "''${FZF_PREVIEW_COLUMNS}x''${FZF_PREVIEW_LINES}" {}' \
+                --preview-window=right:50% \
                 --prompt="Wallpaper: " \
                 --height=100%)
 
@@ -945,10 +945,7 @@
         path = "${config.home.homeDirectory}/Pictures/Wallpapers/catppuccin-mocha";
         # No duration - rotation handled by systemd timer with find -L
         sorting = "random";
-        transition = {
-          type = "fade";
-          duration = 500;
-        };
+        transition_time = 500; # milliseconds for fade transition
       };
     };
   };
