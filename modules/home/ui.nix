@@ -285,7 +285,7 @@
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
         "$mod ALT, N, exec, hyprsunset" # toggle nightlight
         "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar" # toggle top bar
-        "$mod, BACKSPACE, exec, hyprctl dispatch setprop active opaque toggle"
+        "$mod SHIFT, O, exec, hyprctl --batch 'dispatch setprop active opaque toggle; dispatch setprop active noblur toggle'" # toggle transparency (Omarchy)
 
         # Notifications (Mako)
         "$mod CTRL, N, exec, makoctl dismiss" # dismiss notification
@@ -350,21 +350,30 @@
 
       decoration = {
         rounding = 0; # Square windows (Omarchy style)
-        active_opacity = 1.0;
-        inactive_opacity = 0.95;
+        active_opacity = 0.95;
+        inactive_opacity = 0.88;
+        fullscreen_opacity = 1.0;
 
         blur = {
           enabled = true;
-          size = 2;
-          passes = 2;
-          brightness = 0.6;
-          contrast = 0.75;
+          size = 6;
+          passes = 4;
+          ignore_opacity = true; # Critical for blur on transparent windows
+          xray = false;
+          special = true;
+          new_optimizations = true;
+          noise = 0.02;
+          contrast = 0.9;
+          brightness = 0.8;
+          popups = true;
+          popups_ignorealpha = 0.6;
         };
 
         shadow = {
           enabled = true;
-          range = 2;
+          range = 8;
           render_power = 3;
+          color = "rgba(0, 0, 0, 0.5)";
         };
       };
 
@@ -404,6 +413,26 @@
         "float, class:^(waypaper)$"
         "center, class:^(waypaper)$"
         "size 900 700, class:^(waypaper)$"
+        # Apps that need full opacity (video, gaming, etc.)
+        "opacity 1.0 override 1.0 override, class:^(mpv)$"
+        "opacity 1.0 override 1.0 override, class:^(vlc)$"
+        "opacity 1.0 override 1.0 override, class:^(com.obsproject.Studio)$"
+        "opacity 1.0 override 1.0 override, class:^(zoom)$"
+        "opacity 1.0 override 1.0 override, class:^(steam_app_.*)$"
+        "opacity 1.0 override 1.0 override, fullscreen:1"
+        # Slightly more transparent for terminals
+        "opacity 0.92 0.85, class:^(ghostty)$"
+        # File manager
+        "opacity 0.95 0.9, class:^(org.gnome.Nautilus)$"
+      ];
+
+      # Layer rules for blur on overlays
+      layerrule = [
+        "blur, walker"
+        "blur, waybar"
+        "blur, wlogout"
+        "ignorezero, walker"
+        "ignorezero, waybar"
       ];
     };
   };
@@ -711,19 +740,23 @@
         };
       };
 
-      # Omarchy Catppuccin style
+      # Omarchy Catppuccin style with blur support
       style = ''
         @define-color foreground #cdd6f4;
         @define-color background #181824;
 
         * {
-          background-color: @background;
+          background-color: transparent; /* Transparent for Hyprland blur */
           color: @foreground;
           border: none;
           border-radius: 0;
           min-height: 0;
           font-family: 'JetBrainsMono Nerd Font';
           font-size: 12px;
+        }
+
+        window#waybar {
+          background-color: alpha(@background, 0.7); /* Semi-transparent for blur */
         }
 
         .modules-left {
@@ -737,7 +770,7 @@
         #workspaces button {
           all: initial;
           font-family: 'JetBrainsMono Nerd Font';
-          background-color: @background;
+          background-color: transparent;
           padding: 0 6px;
           margin: 0 1.5px;
           min-width: 9px;
@@ -789,7 +822,7 @@
 
         tooltip {
           padding: 2px;
-          background-color: @background;
+          background-color: alpha(@background, 0.85);
           color: @foreground;
         }
       '';
