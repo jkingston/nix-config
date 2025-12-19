@@ -1,5 +1,7 @@
 {
   pkgs,
+  lib,
+  hostCfg,
   stylix,
   ...
 }:
@@ -44,19 +46,19 @@
     };
 
     libinput.enable = true;
-    upower.enable = true;
-    dbus.packages = [ pkgs.iio-sensor-proxy ];
+    upower.enable = hostCfg.isLaptop;
+    dbus.packages = lib.mkIf hostCfg.isLaptop [ pkgs.iio-sensor-proxy ];
 
     # Let Hyprland handle lid switch (don't let systemd intercept it)
-    logind = {
+    logind = lib.mkIf hostCfg.isLaptop {
       lidSwitch = "ignore";
       lidSwitchExternalPower = "ignore";
       lidSwitchDocked = "ignore";
     };
 
-    # Framework laptop services
-    power-profiles-daemon.enable = true;
-    fwupd.enable = true;
+    # Laptop-specific services
+    power-profiles-daemon.enable = hostCfg.isLaptop;
+    fwupd.enable = hostCfg.isLaptop;
   };
 
   programs = {
@@ -164,18 +166,10 @@
     overlays.enable = false;
   };
 
-  # Intel Xe Graphics (Framework 13th gen)
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver # VA-API (iHD driver)
-      vpl-gpu-rt # QSV runtime
-      intel-compute-runtime # OpenCL
-    ];
-  };
+  # Basic graphics support (Intel-specific drivers in hardware/intel-graphics.nix)
+  hardware.graphics.enable = true;
 
   environment.sessionVariables = {
-    LIBVA_DRIVER_NAME = "iHD";
     NIXOS_OZONE_WL = "1"; # Enable Wayland for Chromium/Electron apps
   };
 
