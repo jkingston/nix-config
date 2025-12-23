@@ -168,13 +168,12 @@
         };
       };
 
-      # Touchpad gestures
+      # Touchpad gestures (Hyprland 0.51+ syntax)
       gestures = {
-        workspace_swipe = true;
-        workspace_swipe_fingers = 3;
-        workspace_swipe_distance = 300;
-        workspace_swipe_cancel_ratio = 0.5;
+        workspace_swipe_forever = true;
       };
+
+      gesture = "3, horizontal, workspace";
 
       "$mod" = "SUPER";
 
