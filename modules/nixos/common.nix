@@ -2,6 +2,7 @@
   pkgs,
   lib,
   hostCfg,
+  username,
   stylix,
   ...
 }:
@@ -24,6 +25,20 @@
 
   # PAM service for hyprlock screen locker
   security.pam.services.hyprlock = { };
+
+  # Shared user configuration
+  users.users.${username} = {
+    isNormalUser = true;
+    initialPassword = "nixos";
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+      "audio"
+    ]
+    ++ lib.optionals hostCfg.isLaptop [ "input" ]
+    ++ lib.optionals (!hostCfg.isVM && !hostCfg.isLaptop) [ "render" ];
+  };
 
   services = {
     xserver.enable = false;

@@ -62,6 +62,7 @@
           internalMonitor = "Virtual-1";
           scale = 1.0;
           isLaptop = false;
+          isVM = true;
           hardwareModules = [ ];
           extraModules = [ ];
         };
@@ -78,16 +79,20 @@
 
       mkHost =
         name: hostCfg:
+        let
+          # Default isVM to false, allow override from hostCfg
+          hostCfg' = {
+            isVM = false;
+          }
+          // hostCfg;
+        in
         nixpkgs.lib.nixosSystem {
-          system = hostCfg.system;
+          inherit (hostCfg') system;
 
           # Make hostCfg & username available to all modules
           specialArgs = {
-            inherit
-              stylix
-              username
-              hostCfg
-              ;
+            inherit stylix username;
+            hostCfg = hostCfg';
           };
 
           modules = [
@@ -116,13 +121,14 @@
                   ];
                 };
                 extraSpecialArgs = {
-                  inherit hostCfg username gazelle;
+                  hostCfg = hostCfg';
+                  inherit username gazelle;
                 };
               };
             }
           ]
-          ++ hostCfg.hardwareModules
-          ++ hostCfg.extraModules;
+          ++ hostCfg'.hardwareModules
+          ++ hostCfg'.extraModules;
         };
     in
     {

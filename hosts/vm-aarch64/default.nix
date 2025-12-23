@@ -1,6 +1,5 @@
 {
   hostCfg,
-  username,
   modulesPath,
   ...
 }:
@@ -13,16 +12,6 @@
   ];
 
   networking.hostName = hostCfg.hostName;
-
-  users.users.${username} = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "video"
-      "audio"
-    ];
-  };
 
   # UTM with Apple Virtualization Framework: enable Rosetta for x86_64 binary support
   virtualisation.rosetta.enable = true;

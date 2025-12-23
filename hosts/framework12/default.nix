@@ -1,28 +1,30 @@
 {
   hostCfg,
-  username,
+  lib,
+  config,
   ...
 }:
 
 {
   imports = [
-    ./hardware-configuration.nix
+    ./disko.nix
     ../../modules/nixos/common.nix
   ];
 
   networking.hostName = hostCfg.hostName;
 
-  users.users.${username} = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "video"
-      "audio"
-      "input"
+  # Hardware config from original hardware-configuration.nix
+  boot = {
+    initrd.availableKernelModules = [
+      "xhci_pci"
+      "nvme"
+      "usb_storage"
+      "sd_mod"
     ];
+    kernelModules = [ "kvm-intel" ];
   };
 
-  # Framework-12 specific quirks (if any)
-  # e.g. special kernel params, power tweaks, etc.
+  networking.useDHCP = lib.mkDefault true;
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

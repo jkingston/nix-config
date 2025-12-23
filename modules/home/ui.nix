@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  lib,
+  hostCfg,
   gazelle,
   ...
 }:
@@ -911,7 +913,7 @@
   ## Hypridle - Automatic locking
   ########################################
 
-  services.hypridle = {
+  services.hypridle = lib.mkIf (!hostCfg.isVM) {
     enable = true;
     settings = {
       general = {

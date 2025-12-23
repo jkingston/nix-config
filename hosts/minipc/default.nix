@@ -1,6 +1,5 @@
 {
   hostCfg,
-  username,
   ...
 }:
 
@@ -11,17 +10,6 @@
   ];
 
   networking.hostName = hostCfg.hostName;
-
-  users.users.${username} = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "video"
-      "audio"
-      "render"
-    ];
-  };
 
   # AMD-specific firmware and microcode
   hardware.enableRedistributableFirmware = true;

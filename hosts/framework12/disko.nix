@@ -1,13 +1,14 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    # Crucial P3 Plus 500GB NVMe SSD
-    device = "/dev/disk/by-id/nvme-CT500P3PSSD8_241147836F99";
+    # Framework 13 NVMe - use disk ID for stable reference
+    # Find with: ls -la /dev/disk/by-id/ | grep nvme
+    device = "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_XXXXXX";
     content = {
       type = "gpt";
       partitions = {
         ESP = {
-          size = "2G";
+          size = "1G";
           type = "EF00";
           content = {
             type = "filesystem";
