@@ -154,9 +154,10 @@
     package = null;
     portalPackage = null;
 
-    # Scaling & monitor layout are passed in from host via users/default-user.nix,
-    # so only the SHARED config goes here.
     settings = {
+      # Monitor scaling from hostCfg
+      monitor = "${hostCfg.internalMonitor}, preferred, auto, ${builtins.toString hostCfg.scale}";
+
       input = {
         kb_layout = "gb";
 

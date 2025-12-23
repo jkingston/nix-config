@@ -70,7 +70,7 @@
           system = "x86_64-linux";
           hostName = "minipc";
           internalMonitor = "HDMI-A-1";
-          scale = 1.0;
+          scale = 1.5;
           isLaptop = false;
           hardwareModules = [ ];
           extraModules = [ ./modules/nixos/hardware/amd-graphics.nix ];
