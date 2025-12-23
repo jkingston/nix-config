@@ -2,6 +2,7 @@
   description = "Hyprland setup";
 
   inputs = {
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -31,6 +32,7 @@
 
   outputs =
     {
+      determinate,
       nixpkgs,
       home-manager,
       stylix,
@@ -89,6 +91,7 @@
           };
 
           modules = [
+            determinate.nixosModules.default
             stylix.nixosModules.stylix
             catppuccin.nixosModules.catppuccin
             disko.nixosModules.disko
