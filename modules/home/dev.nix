@@ -1,9 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Note: claude-code overlay is applied at system level in flake.nix
-  # (required when using home-manager.useGlobalPkgs = true)
-
   home.packages = with pkgs; [
     git
     gh
@@ -15,7 +12,6 @@
     fd
     unzip
     tree
-    claude-code
 
     # Shell tools (Omarchy)
     lazygit
@@ -53,6 +49,8 @@
     };
 
     ssh.enable = true;
+
+    claude-code.enable = true;
 
     # Neovim with LazyVim
     neovim = {

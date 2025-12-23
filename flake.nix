@@ -2,18 +2,19 @@
   description = "Hyprland setup";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
-      url = "github:nix-community/stylix/release-25.05";
+      url = "github:nix-community/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     catppuccin = {
+      # No release-25.11 yet; using 25.05 which should be compatible
       url = "github:catppuccin/nix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -24,8 +25,6 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    claude-code.url = "github:sadjow/claude-code-nix";
 
     gazelle.url = "github:Zeus-Deus/gazelle-tui";
   };
@@ -38,7 +37,6 @@
       catppuccin,
       nixos-hardware,
       disko,
-      claude-code,
       gazelle,
       ...
     }:
@@ -87,50 +85,35 @@
               stylix
               username
               hostCfg
-              claude-code
               ;
           };
 
-          modules =
-            [
-              stylix.nixosModules.stylix
-              catppuccin.nixosModules.catppuccin
-              disko.nixosModules.disko
-              ./hosts/${name}/default.nix
+          modules = [
+            stylix.nixosModules.stylix
+            catppuccin.nixosModules.catppuccin
+            disko.nixosModules.disko
+            ./hosts/${name}/default.nix
 
-              # Apply claude-code overlay and allow unfree (required for useGlobalPkgs)
-              (
-                { lib, ... }:
-                {
-                  nixpkgs.overlays = [ claude-code.overlays.default ];
-                  nixpkgs.config.allowUnfreePredicate =
-                    pkg:
-                    builtins.elem (lib.getName pkg) [
-                      "claude-code"
-                    ];
-                }
-              )
-
-              # home-manager as a NixOS module
-              home-manager.nixosModules.home-manager
-              {
-                home-manager = {
-                  useGlobalPkgs = true;
-                  useUserPackages = true;
-                  users.${username} = {
-                    imports = [
-                      catppuccin.homeModules.catppuccin
-                      ./users/default-user.nix
-                    ];
-                  };
-                  extraSpecialArgs = {
-                    inherit hostCfg username gazelle;
-                  };
+            # home-manager as a NixOS module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                users.${username} = {
+                  imports = [
+                    catppuccin.homeModules.catppuccin
+                    ./users/default-user.nix
+                  ];
                 };
-              }
-            ]
-            ++ hostCfg.hardwareModules
-            ++ hostCfg.extraModules;
+                extraSpecialArgs = {
+                  inherit hostCfg username gazelle;
+                };
+              };
+            }
+          ]
+          ++ hostCfg.hardwareModules
+          ++ hostCfg.extraModules;
         };
     in
     {
