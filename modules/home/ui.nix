@@ -15,7 +15,6 @@
       with pkgs;
       [
         # Core UI tools
-        ghostty
         hyprlock
         wvkbd
         cliphist
@@ -439,20 +438,10 @@
   };
 
   ########################################
-  ## Config files (Ghostty, Walker)
+  ## Config files
   ########################################
 
   xdg.configFile = {
-    "ghostty/config".text = ''
-      font-family = JetBrainsMono Nerd Font
-      font-size = 10
-      theme = catppuccin-mocha
-
-      window-decoration = none
-      window-padding-x = 8
-      window-padding-y = 8
-    '';
-
     # Waypaper - GUI wallpaper picker with swww backend
     "waypaper/config.ini".text = ''
       [Settings]
@@ -984,5 +973,20 @@
       Persistent = true;
     };
     Install.WantedBy = [ "timers.target" ];
+  };
+
+  ########################################
+  ## Ghostty terminal
+  ########################################
+
+  programs.ghostty = {
+    enable = true;
+    settings = {
+      font-family = "JetBrainsMono Nerd Font";
+      font-size = 10;
+      window-decoration = false;
+      window-padding-x = 8;
+      window-padding-y = 8;
+    };
   };
 }
