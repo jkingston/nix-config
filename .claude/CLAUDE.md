@@ -1,6 +1,6 @@
 # nix-config
 
-NixOS flake-based configuration for Framework 12 laptop with Hyprland.
+NixOS flake-based configuration for multiple machines with Hyprland.
 
 ## Project Structure
 
@@ -9,7 +9,7 @@ NixOS flake-based configuration for Framework 12 laptop with Hyprland.
 - `modules/nixos/` - System-level NixOS modules
 - `modules/home/` - Home-manager modules (ui.nix, dev.nix, shell.nix)
 - `users/` - User configurations that import home modules
-- `scripts/` - Validation scripts (check.sh, lint.sh, fmt.sh)
+- `scripts/` - Validation scripts (check.sh, lint.sh, fmt.sh) and install.sh
 
 ## Key Patterns
 
@@ -19,15 +19,18 @@ NixOS flake-based configuration for Framework 12 laptop with Hyprland.
 - GUI/Hyprland: `modules/home/ui.nix`
 
 ### Adding a new host
-1. Create `hosts/<name>/default.nix` and `hardware-configuration.nix`
+1. Create `hosts/<name>/default.nix` and `disko.nix`
 2. Add host config to `hosts` attrset in `flake.nix`
 3. Add `nixosConfigurations.<name>` output
+4. For physical machines, add LUKS to disko.nix (see minipc for example)
 
 ### Special arguments
 The flake passes `hostCfg` and `username` via `specialArgs` to all modules:
 - `hostCfg.hostName` - Machine hostname
 - `hostCfg.scale` - HiDPI scaling factor
 - `hostCfg.internalMonitor` - Primary display name
+- `hostCfg.isLaptop` - Laptop-specific features (power management, lid switch)
+- `hostCfg.isVM` - VM detection (defaults false, disables LUKS/hypridle)
 
 ## Code Style
 
@@ -53,3 +56,20 @@ sudo nixos-rebuild switch --flake ~/nix-config
 ```
 
 Or use the `rebuild` shell alias.
+
+## Installation
+
+For fresh installs, boot the NixOS minimal installer and run:
+```bash
+nix-shell -p git
+git clone https://github.com/jkingston/nix-config.git /tmp/nix-config
+cd /tmp/nix-config
+sudo ./scripts/install.sh <hostname>
+```
+
+The script prompts for a password used for both the user account and LUKS encryption (on physical machines).
+
+### Hosts
+- `framework12` - Framework 13 laptop (x86_64, LUKS)
+- `minipc` - Beelink SER5 Pro (x86_64, LUKS)
+- `vm-aarch64` - UTM VM on Apple Silicon (aarch64, no LUKS)
