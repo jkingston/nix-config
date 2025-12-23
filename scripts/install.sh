@@ -60,6 +60,7 @@ done
 # Clone config
 echo ""
 echo "Cloning configuration..."
+rm -rf /tmp/nix-config
 nix-shell -p git --run "git clone $REPO_URL /tmp/nix-config"
 cd /tmp/nix-config
 
