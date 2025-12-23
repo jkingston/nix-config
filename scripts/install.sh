@@ -20,8 +20,9 @@ if [[ $# -lt 1 ]]; then
 fi
 
 HOST="$1"
-REPO_URL="https://github.com/jkingston/nix-config.git"
 USERNAME="jack"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
 
 # Validate host
 case "$HOST" in
@@ -57,13 +58,6 @@ while true; do
   echo ""
 done
 
-# Clone config
-echo ""
-echo "Cloning configuration..."
-rm -rf /tmp/nix-config
-nix-shell -p git --run "git clone $REPO_URL /tmp/nix-config"
-cd /tmp/nix-config
-
 # Create LUKS password file
 if $USES_LUKS; then
   echo "$PASSWORD" >/tmp/disk-password
@@ -73,12 +67,12 @@ fi
 # Run disko
 echo ""
 echo "Running disko..."
-nix run github:nix-community/disko -- --mode disko --flake ".#$HOST"
+nix run github:nix-community/disko -- --mode disko --flake "$REPO_DIR#$HOST"
 
 # Install NixOS
 echo ""
 echo "Installing NixOS..."
-nixos-install --flake ".#$HOST" --no-root-passwd
+nixos-install --flake "$REPO_DIR#$HOST" --no-root-passwd
 
 # Set user password
 echo ""

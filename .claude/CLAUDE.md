@@ -61,10 +61,12 @@ Or use the `rebuild` shell alias.
 
 For fresh installs, boot the NixOS minimal installer and run:
 ```bash
-sudo bash <(curl -sL https://raw.githubusercontent.com/jkingston/nix-config/main/scripts/install.sh) <hostname>
+nix-shell -p git --run "git clone https://github.com/jkingston/nix-config.git"
+cd nix-config
+sudo ./scripts/install.sh <hostname>
 ```
 
-The script clones the repo, prompts for a password (used for both user account and LUKS on physical machines), partitions the disk, and installs NixOS.
+The script prompts for a password (used for both user account and LUKS on physical machines), partitions the disk, and installs NixOS.
 
 ### Hosts
 - `framework12` - Framework 13 laptop (x86_64, LUKS)
