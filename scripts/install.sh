@@ -64,6 +64,9 @@ if $USES_LUKS; then
   chmod 600 /tmp/disk-password
 fi
 
+# Enable flakes for this session
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
 # Run disko
 echo ""
 echo "Running disko..."

@@ -59,9 +59,9 @@ Or use the `rebuild` shell alias.
 
 ## Installation
 
-For fresh installs, boot the NixOS minimal installer and run:
+For fresh installs, boot the NixOS 25.11+ minimal installer and run:
 ```bash
-nix-shell -p git --run "git clone https://github.com/jkingston/nix-config.git"
+git clone https://github.com/jkingston/nix-config.git
 cd nix-config
 sudo ./scripts/install.sh <hostname>
 ```
