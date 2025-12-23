@@ -47,6 +47,7 @@ in
     fzf.enable = true;
     hyprlock.enable = false; # Using custom Omarchy styling
     wlogout.enable = true;
+    ghostty.enable = true;
   };
 
   gtk = {
