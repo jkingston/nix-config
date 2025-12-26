@@ -50,6 +50,16 @@ in
     ghostty.enable = true;
   };
 
+  # Dark mode preference (enables prefers-color-scheme: dark in browsers)
+  dconf = {
+    enable = true;
+    settings = {
+      "org/gnome/desktop/interface" = {
+        color-scheme = "prefer-dark";
+      };
+    };
+  };
+
   gtk = {
     enable = true;
 
