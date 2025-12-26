@@ -244,6 +244,20 @@
       # Monitor scaling from hostCfg
       monitor = "${hostCfg.internalMonitor}, preferred, auto, ${builtins.toString hostCfg.scale}";
 
+      # XWayland HiDPI - prevents blurry X11 apps, use Xft.dpi instead
+      xwayland = {
+        force_zero_scaling = true;
+      };
+
+      # Environment variables for toolkit scaling
+      env = [
+        "XCURSOR_SIZE,24"
+        "HYPRCURSOR_SIZE,24"
+        "GDK_BACKEND,wayland,x11,*"
+        "QT_QPA_PLATFORM,wayland;xcb"
+        "QT_AUTO_SCREEN_SCALE_FACTOR,1"
+      ];
+
       input = {
         kb_layout = "gb";
 
@@ -264,6 +278,7 @@
       "$mod" = "SUPER";
 
       exec-once = [
+        "xrdb -merge ~/.Xresources" # Load X11 DPI settings for XWayland apps
         "swayosd-server" # OSD for volume/brightness
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"

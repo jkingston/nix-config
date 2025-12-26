@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   hostCfg,
   username,
@@ -7,21 +6,23 @@
   ...
 }:
 
-let
-  scaleStr = builtins.toString hostCfg.scale;
-in
 {
   home = {
     inherit username;
     homeDirectory = "/home/${username}";
     stateVersion = "25.05";
 
-    sessionVariables = {
-      GDK_SCALE = "1";
-      GDK_DPI_SCALE = scaleStr;
-      QT_AUTO_SCREEN_SCALE_FACTOR = "0";
-      QT_SCALE_FACTOR = scaleStr;
-    };
+    # XWayland DPI scaling (96 * scale factor)
+    # This is loaded by xrdb in Hyprland exec-once
+    file.".Xresources".text = ''
+      Xft.dpi: ${builtins.toString (builtins.floor (96.0 * hostCfg.scale))}
+      Xft.autohint: 0
+      Xft.lcdfilter: lcddefault
+      Xft.hintstyle: hintfull
+      Xft.hinting: 1
+      Xft.antialias: 1
+      Xft.rgba: rgb
+    '';
 
     # Adwaita cursor (Omarchy default)
     pointerCursor = {
@@ -62,16 +63,6 @@ in
 
   gtk = {
     enable = true;
-
-    gtk3.extraConfig =
-      let
-        dpi = 96.0 * hostCfg.scale * 1000.0;
-      in
-      {
-        "gtk-xft-dpi" = builtins.toString (builtins.floor dpi);
-      };
-
-    gtk4.extraConfig = config.gtk.gtk3.extraConfig;
   };
 
   imports = [
