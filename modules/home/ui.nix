@@ -46,6 +46,7 @@
         grimblast # for screenshots
         hyprpicker # for color picker
         hyprsunset # for blue light filter
+        sunwait # for sunrise/sunset calculation
         btop # system monitor
         swayosd # OSD for volume/brightness
 
@@ -146,6 +147,71 @@
         executable = true;
       };
 
+      # Hyprsunset gradual transition (30 min fade)
+      ".local/bin/hyprsunset-transition" = {
+        text = ''
+          #!/usr/bin/env bash
+          # Gradual transition between day/night over 30 minutes
+          # Usage: hyprsunset-transition day|night
+
+          MODE="$1"
+          STEPS=30
+          STEP_DURATION=60  # 60 seconds per step
+
+          DAY_TEMP=6500
+          NIGHT_TEMP=4500
+
+          if [ "$MODE" = "day" ]; then
+            START=$NIGHT_TEMP
+            END=$DAY_TEMP
+            rm -f /tmp/hyprsunset-night
+          else
+            START=$DAY_TEMP
+            END=$NIGHT_TEMP
+            touch /tmp/hyprsunset-night
+          fi
+
+          pkill -SIGRTMIN+10 waybar || true
+
+          for i in $(seq 0 $STEPS); do
+            TEMP=$((START + (END - START) * i / STEPS))
+            hyprctl hyprsunset temperature $TEMP
+            [ $i -lt $STEPS ] && sleep $STEP_DURATION
+          done
+
+          # Final state - identity for day mode
+          if [ "$MODE" = "day" ]; then
+            hyprctl hyprsunset identity
+          fi
+        '';
+        executable = true;
+      };
+
+      # Hyprsunset waybar toggle (manual override)
+      ".local/bin/hyprsunset-toggle" = {
+        text = ''
+          #!/usr/bin/env bash
+          # Toggle night light on/off (manual override)
+          # Uses hyprctl IPC to control running hyprsunset
+
+          STATE_FILE="/tmp/hyprsunset-night"
+
+          if [ -f "$STATE_FILE" ]; then
+            hyprctl hyprsunset identity
+            rm "$STATE_FILE"
+            notify-send -t 1500 "󰹏 Night Light Off"
+            echo "󰹏"
+          else
+            hyprctl hyprsunset temperature 4500
+            touch "$STATE_FILE"
+            notify-send -t 1500 "󱩌 Night Light On"
+            echo "󱩌"
+          fi
+          pkill -SIGRTMIN+10 waybar
+        '';
+        executable = true;
+      };
+
       # Catppuccin wallpaper collections (~386 wallpapers)
       "Pictures/Wallpapers/catppuccin-mocha".source = pkgs.fetchFromGitHub {
         owner = "orangci";
@@ -202,6 +268,7 @@
         "wl-paste --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
         "hypridle" # idle lock daemon (backup in case systemd service fails)
+        "hyprsunset" # blue light filter (controlled via IPC by systemd timers)
         # Note: waybar and mako are started via systemd services
         "swww-daemon && ~/.local/bin/wallpaper-random" # Start wallpaper daemon and set initial wallpaper
       ];
@@ -304,7 +371,6 @@
 
         # Toggles
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
-        "$mod ALT, N, exec, hyprsunset" # toggle nightlight
         "$mod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar" # toggle top bar
         "$mod SHIFT, O, exec, hyprctl --batch 'dispatch setprop active opaque toggle; dispatch setprop active noblur toggle'" # toggle transparency (Omarchy)
 
@@ -606,6 +672,7 @@
           "pulseaudio"
           "cpu"
           "power-profiles-daemon"
+          "custom/nightlight"
           "battery"
         ];
 
@@ -748,6 +815,15 @@
             balanced = "󰾅";
             power-saver = "󰾆";
           };
+        };
+
+        "custom/nightlight" = {
+          format = "{}";
+          exec = "[ -f /tmp/hyprsunset-night ] && echo '󱩌' || echo '󰹏'";
+          interval = "once";
+          signal = 10;
+          on-click = "~/.local/bin/hyprsunset-toggle";
+          tooltip = false;
         };
       };
 
@@ -991,6 +1067,56 @@
     Unit.Description = "Rotate wallpaper every hour";
     Timer = {
       OnCalendar = "hourly";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  ########################################
+  ## Hyprsunset sunrise/sunset scheduling
+  ########################################
+
+  # Sunrise transition - gradual fade to day mode
+  systemd.user.services.hyprsunset-day = {
+    Unit.Description = "Gradual transition to day mode at sunrise";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.writeShellScript "hyprsunset-day" ''
+        # Wait for sunrise (London coordinates)
+        ${pkgs.sunwait}/bin/sunwait sun up 51.5074N 0.1278W
+        # Gradual 30-minute transition to day mode
+        ${config.home.homeDirectory}/.local/bin/hyprsunset-transition day
+      ''}";
+    };
+  };
+
+  systemd.user.timers.hyprsunset-day = {
+    Unit.Description = "Trigger sunrise transition";
+    Timer = {
+      OnCalendar = "*-*-* 04:00:00"; # Run at 4am daily
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  # Sunset transition - gradual fade to night mode
+  systemd.user.services.hyprsunset-night = {
+    Unit.Description = "Gradual transition to night mode at sunset";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.writeShellScript "hyprsunset-night" ''
+        # Wait for sunset (London coordinates)
+        ${pkgs.sunwait}/bin/sunwait sun down 51.5074N 0.1278W
+        # Gradual 30-minute transition to night mode
+        ${config.home.homeDirectory}/.local/bin/hyprsunset-transition night
+      ''}";
+    };
+  };
+
+  systemd.user.timers.hyprsunset-night = {
+    Unit.Description = "Trigger sunset transition";
+    Timer = {
+      OnCalendar = "*-*-* 14:00:00"; # Run at 2pm daily
       Persistent = true;
     };
     Install.WantedBy = [ "timers.target" ];
