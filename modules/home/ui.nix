@@ -42,6 +42,7 @@
         localsend
 
         # Utilities
+        xorg.xrdb # for loading .Xresources (XWayland DPI)
         bluez # for bluetooth
         grimblast # for screenshots
         hyprpicker # for color picker
