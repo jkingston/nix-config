@@ -26,10 +26,12 @@
   programs = {
     git = {
       enable = true;
-      userName = "Jack Kingston"; # remember to swap these later
-      userEmail = "j.kngstn@gmail.com";
+      settings = {
+        user = {
+          name = "Jack Kingston"; # remember to swap these later
+          email = "j.kngstn@gmail.com";
+        };
 
-      extraConfig = {
         init.defaultBranch = "main";
         pull.rebase = false;
 
@@ -47,12 +49,20 @@
       };
     };
 
+    delta.enable = true; # Override catppuccin's deprecated git.delta.enable
+
     direnv = {
       enable = true;
       nix-direnv.enable = true;
     };
 
-    ssh.enable = true;
+    ssh = {
+      enable = true;
+      enableDefaultConfig = false;
+      matchBlocks."*" = {
+        setEnv.TERM = "xterm-256color";
+      };
+    };
 
     claude-code.enable = true;
 
