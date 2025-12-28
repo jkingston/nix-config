@@ -69,7 +69,7 @@
         minipc = {
           system = "x86_64-linux";
           hostName = "minipc";
-          internalMonitor = ""; # Wildcard - applies to all monitors
+          internalMonitor = "DP-3";
           scale = 1.5;
           isLaptop = false;
           hardwareModules = [ ];
