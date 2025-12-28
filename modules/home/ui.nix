@@ -1145,8 +1145,9 @@
   programs.ghostty = {
     enable = true;
     settings = {
-      font-family = "JetBrainsMono Nerd Font";
+      font-family = "Caskaydia Cove Nerd Font";
       font-size = 10;
+      font-thicken = true;
       window-decoration = false;
       window-padding-x = 8;
       window-padding-y = 8;
