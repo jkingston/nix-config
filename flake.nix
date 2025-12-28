@@ -69,8 +69,8 @@
         minipc = {
           system = "x86_64-linux";
           hostName = "minipc";
-          internalMonitor = "DP-3";
-          scale = 1.5;
+          internalMonitor = "";
+          scale = 1.66666666;
           isLaptop = false;
           hardwareModules = [ ];
           extraModules = [ ./modules/nixos/hardware/amd-graphics.nix ];
