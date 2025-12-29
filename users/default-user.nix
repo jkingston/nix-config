@@ -70,10 +70,9 @@
     ../modules/desktop/xdg-portal.nix
     ../modules/desktop/hyprland.nix
     ../modules/desktop/waybar.nix
-    ../modules/desktop/walker.nix
+    ../modules/desktop/rofi.nix
     ../modules/desktop/mako.nix
     ../modules/desktop/hyprlock.nix
-    ../modules/desktop/wlogout.nix
     ../modules/desktop/hypridle.nix
     ../modules/desktop/nightlight.nix
     ../modules/desktop/wallpaper.nix

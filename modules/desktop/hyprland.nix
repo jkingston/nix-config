@@ -64,7 +64,7 @@
       bind = [
         # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
-        "$mod, SPACE, exec, walker"
+        "$mod, SPACE, exec, rofi -show drun"
         "$mod SHIFT, B, exec, chromium"
         "$mod SHIFT, N, exec, ghostty -e nvim"
         "$mod SHIFT, T, exec, ghostty -e btop"
@@ -154,7 +154,7 @@
         # Clipboard (Omarchy universal)
         "$mod, C, exec, wl-copy"
         "$mod, V, exec, wl-paste"
-        "$mod CTRL, V, exec, walker -m clipboard" # clipboard manager
+        "$mod CTRL, V, exec, ~/.local/bin/rofi-clipboard" # clipboard manager
 
         # Toggles
         "$mod CTRL, I, exec, hyprlock" # toggle idle/lock
@@ -166,7 +166,7 @@
         "$mod CTRL SHIFT, N, exec, makoctl dismiss -a" # dismiss all notifications
 
         # Emoji picker
-        "$mod CTRL, E, exec, walker -m emojis"
+        "$mod CTRL, E, exec, rofimoji"
 
         # Wallpaper controls (swww + waypaper)
         "$mod CTRL, W, exec, waypaper"
@@ -176,7 +176,7 @@
         "$mod, slash, exec, ~/.local/bin/keybind-help"
 
         # System
-        "$mod, ESCAPE, exec, wlogout" # lock/suspend/restart/shutdown
+        "$mod, ESCAPE, exec, rofi -show power-menu -modi power-menu:rofi-power-menu" # lock/suspend/restart/shutdown
 
         # Mouse scroll for workspaces (Omarchy)
         "$mod, MOUSE_DOWN, workspace, e+1"
@@ -302,10 +302,9 @@
 
       # Layer rules for blur on overlays
       layerrule = [
-        "blur, walker"
+        "blur, rofi"
         "blur, waybar"
-        "blur, wlogout"
-        "ignorezero, walker"
+        "ignorezero, rofi"
         "ignorezero, waybar"
       ];
     };
