@@ -45,42 +45,31 @@
     let
       username = "jack";
 
-      # Per-machine "facts" that differ
-      hosts = {
-        framework12 = {
-          system = "x86_64-linux";
-          hostName = "fw12";
-          internalMonitor = "eDP-1";
-          scale = 1.25;
-          isLaptop = true;
-          hardwareModules = [ nixos-hardware.nixosModules.framework-13th-gen-intel ];
-          extraModules = [ ./modules/nixos/hardware/intel-graphics.nix ];
+      # Load profile and convert to hostCfg format (backward compatibility)
+      loadProfile =
+        name: profilePath:
+        let
+          # Some profiles need inputs (e.g., nixos-hardware)
+          rawProfile = import profilePath;
+          profile =
+            if builtins.isFunction rawProfile then rawProfile { inherit nixos-hardware; } else rawProfile;
+        in
+        {
+          system = profile.system;
+          hostName = profile.hostName;
+          internalMonitor = profile.monitor.name;
+          scale = profile.monitor.scale;
+          isLaptop = profile.isLaptop;
+          isVM = profile.isVM or false;
+          hardwareModules = profile.hardwareModules;
+          extraModules = profile.extraModules;
         };
-        vm-aarch64 = {
-          system = "aarch64-linux";
-          hostName = "vm";
-          internalMonitor = "Virtual-1";
-          scale = 1.0;
-          isLaptop = false;
-          isVM = true;
-          hardwareModules = [ ];
-          extraModules = [ ];
-        };
-        minipc = {
-          system = "x86_64-linux";
-          hostName = "minipc";
-          internalMonitor = "";
-          scale = 1.66666666;
-          isLaptop = false;
-          hardwareModules = [ ];
-          extraModules = [ ./modules/nixos/hardware/amd-graphics.nix ];
-        };
-      };
 
       mkHost =
-        name: hostCfg:
+        name: profilePath:
         let
-          # Default isVM to false, allow override from hostCfg
+          hostCfg = loadProfile name profilePath;
+          # Ensure isVM has a default
           hostCfg' = {
             isVM = false;
           }
@@ -132,8 +121,8 @@
         };
     in
     {
-      nixosConfigurations.framework12 = mkHost "framework12" hosts.framework12;
-      nixosConfigurations.vm-aarch64 = mkHost "vm-aarch64" hosts.vm-aarch64;
-      nixosConfigurations.minipc = mkHost "minipc" hosts.minipc;
+      nixosConfigurations.framework12 = mkHost "framework12" ./hosts/framework12/profile.nix;
+      nixosConfigurations.vm-aarch64 = mkHost "vm-aarch64" ./hosts/vm-aarch64/profile.nix;
+      nixosConfigurations.minipc = mkHost "minipc" ./hosts/minipc/profile.nix;
     };
 }

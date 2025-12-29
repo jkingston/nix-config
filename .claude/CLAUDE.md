@@ -4,25 +4,70 @@ NixOS flake-based configuration for multiple machines with Hyprland.
 
 ## Project Structure
 
-- `flake.nix` - Main flake with inputs, mkHost function, and nixosConfigurations
-- `hosts/<name>/` - Machine-specific configs (hardware, hostname)
-- `modules/nixos/` - System-level NixOS modules
-- `modules/home/` - Home-manager modules (ui.nix, dev.nix, shell.nix)
-- `users/` - User configurations that import home modules
-- `scripts/` - Validation scripts (check.sh, lint.sh, fmt.sh) and install.sh
+```
+├── flake.nix              # Main flake with inputs and nixosConfigurations
+├── hosts/<name>/
+│   ├── default.nix        # Host entry point (imports disko, common modules)
+│   ├── disko.nix          # Disk partitioning
+│   └── profile.nix        # Machine-specific values (hostname, display, etc.)
+├── modules/
+│   ├── system/            # NixOS system modules
+│   │   ├── core.nix       # Nix settings, locale, users, boot, networking
+│   │   ├── greetd.nix     # Login manager
+│   │   ├── pipewire.nix   # Audio
+│   │   ├── power.nix      # Laptop power management
+│   │   ├── stylix.nix     # Wallpaper and font theming
+│   │   └── hardware/      # GPU drivers (intel, amd)
+│   ├── nixos/
+│   │   └── common.nix     # Entry point that imports system modules
+│   ├── desktop/           # Home-manager desktop modules
+│   │   ├── hyprland.nix   # Window manager
+│   │   ├── waybar.nix     # Status bar
+│   │   ├── walker.nix     # App launcher
+│   │   ├── mako.nix       # Notifications
+│   │   ├── hyprlock.nix   # Lock screen
+│   │   ├── hypridle.nix   # Idle management
+│   │   ├── nightlight.nix # Blue light filter with scheduling
+│   │   ├── wallpaper.nix  # swww + waypaper
+│   │   ├── clipboard.nix  # Clipboard manager
+│   │   └── ...            # chromium, ghostty, wlogout, etc.
+│   └── home/              # Home-manager entry points
+│       ├── ui.nix         # Imports desktop modules
+│       ├── dev.nix        # Dev tools (git, neovim, direnv)
+│       └── shell.nix      # Shell config (zsh, fzf, eza)
+├── users/
+│   └── default-user.nix   # User home config (imports home modules)
+└── scripts/               # Validation and install scripts
+```
 
 ## Key Patterns
 
 ### Adding packages
-- System packages: `modules/nixos/common.nix` → `environment.systemPackages`
-- User packages: `modules/home/dev.nix` → `home.packages`
-- GUI/Hyprland: `modules/home/ui.nix`
+- System packages: `modules/system/core.nix` → `environment.systemPackages`
+- Dev tools: `modules/home/dev.nix` → `home.packages`
+- Desktop utilities: `modules/desktop/packages.nix` → `home.packages`
+
+### Adding a new desktop feature
+1. Create `modules/desktop/feature.nix` with the configuration
+2. Add import to `modules/home/ui.nix`
 
 ### Adding a new host
-1. Create `hosts/<name>/default.nix` and `disko.nix`
-2. Add host config to `hosts` attrset in `flake.nix`
-3. Add `nixosConfigurations.<name>` output
-4. For physical machines, add LUKS to disko.nix (see minipc for example)
+1. Create `hosts/<name>/profile.nix` with machine-specific values
+2. Create `hosts/<name>/default.nix` and `disko.nix`
+3. Add `nixosConfigurations.<name> = mkHost "<name>" ./hosts/<name>/profile.nix;` to flake.nix
+
+### Host profile format
+```nix
+{
+  system = "x86_64-linux";
+  hostName = "myhost";
+  isLaptop = false;
+  isVM = false;
+  monitor = { name = "DP-1"; scale = 1.0; };
+  hardwareModules = [ ../../modules/system/hardware/amd-graphics.nix ];
+  extraModules = [ ];
+}
+```
 
 ### Special arguments
 The flake passes `hostCfg` and `username` via `specialArgs` to all modules:
@@ -36,7 +81,7 @@ The flake passes `hostCfg` and `username` via `specialArgs` to all modules:
 
 - Format: `nixfmt-rfc-style` (run `./scripts/fmt.sh`)
 - Lint: `statix` and `deadnix` (run `./scripts/lint.sh`)
-- Commits: Conventional style (`feat:`, `fix:`)
+- Commits: Conventional style (`feat:`, `fix:`, `refactor:`)
 
 ## Validation
 

@@ -1,3 +1,4 @@
+# Common NixOS configuration - imports split system modules
 {
   pkgs,
   lib,
@@ -8,186 +9,14 @@
 }:
 
 {
-  nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-
-    # Cachix for pre-built claude-code binaries
-    substituters = [ "https://claude-code.cachix.org" ];
-    trusted-public-keys = [ "claude-code.cachix.org-1:YeXf2aNu7UTX8Vwrze0za1WEDS+4DuI2kVeWEE4fsRk=" ];
-  };
-
-  time.timeZone = "Europe/London";
-  i18n.defaultLocale = "en_GB.UTF-8";
-  console.keyMap = "uk";
-
-  # PAM service for hyprlock screen locker
-  security.pam.services.hyprlock = { };
-
-  # Shared user configuration
-  users.users.${username} = {
-    isNormalUser = true;
-    initialPassword = "nixos";
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "video"
-      "audio"
-    ]
-    ++ lib.optionals hostCfg.isLaptop [ "input" ]
-    ++ lib.optionals (!hostCfg.isVM && !hostCfg.isLaptop) [ "render" ];
-  };
-
-  services = {
-    xserver.enable = false;
-
-    greetd = {
-      enable = true;
-      settings = {
-        # auto-login, no menu
-        default_session = {
-          command = "${pkgs.uwsm}/bin/uwsm start hyprland-uwsm.desktop";
-          user = "jack";
-        };
-      };
-    };
-
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      pulse.enable = true;
-    };
-
-    libinput.enable = true;
-    upower.enable = hostCfg.isLaptop;
-    dbus.packages = lib.mkIf hostCfg.isLaptop [ pkgs.iio-sensor-proxy ];
-
-    # Let Hyprland handle lid switch (don't let systemd intercept it)
-    logind = lib.mkIf hostCfg.isLaptop {
-      lidSwitch = "ignore";
-      lidSwitchExternalPower = "ignore";
-      lidSwitchDocked = "ignore";
-    };
-
-    # Laptop-specific services
-    power-profiles-daemon.enable = hostCfg.isLaptop;
-    fwupd.enable = hostCfg.isLaptop;
-  };
-
-  programs = {
-    hyprland = {
-      enable = true;
-      withUWSM = true; # use UWSM, Omarchy-style
-      xwayland.enable = true;
-    };
-
-    uwsm.enable = true;
-  };
-
-  # Catppuccin - primary theming system
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-    accent = "blue";
-
-    plymouth = {
-      enable = true;
-      flavor = "mocha";
-    };
-  };
-
-  boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
-    loader.systemd-boot.enable = true;
-    loader.efi.canTouchEfiVariables = true;
-
-    # Plymouth boot splash
-    plymouth = {
-      enable = true;
-      extraConfig = ''
-        ShowDelay=0
-        DeviceTimeout=8
-      '';
-    };
-
-    # Enable systemd in initrd for graphical LUKS prompt
-    initrd.systemd.enable = true;
-
-    # Silent boot for clean experience
-    consoleLogLevel = 0;
-    initrd.verbose = false;
-    kernelParams = [
-      "quiet"
-      "splash"
-      "boot.shell_on_fail"
-      "loglevel=3"
-      "rd.systemd.show_status=false"
-      "rd.udev.log_level=3"
-      "udev.log_priority=3"
-      "vt.global_cursor_default=0" # Hide cursor during VT handoff
-    ];
-  };
-
-  networking = {
-    networkmanager.enable = true;
-
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [
-        22
-        53317
-      ];
-      allowedUDPPorts = [ 53317 ];
-    };
-  };
-
-  environment.systemPackages = with pkgs; [
-    git
-    wget
-    curl
-    wl-clipboard
-    grim
-    slurp
-    swappy
+  imports = [
+    ../system/core.nix
+    ../system/greetd.nix
+    ../system/pipewire.nix
+    ../system/power.nix
+    ../system/stylix.nix
   ];
 
-  # Fonts - JetBrainsMono Nerd Font for Waybar icons
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    nerd-fonts.caskaydia-cove
-  ];
-
-  # Stylix - only for wallpaper and fonts (catppuccin handles the rest)
-  stylix = {
-    enable = true;
-    autoEnable = false; # Don't auto-theme apps - catppuccin does that
-
-    # Color scheme still needed for Stylix internals
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-
-    # Wallpaper (catppuccin/nix doesn't handle this)
-    image = pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/forrest.png";
-      sha256 = "sha256-jDqDj56e9KI/xgEIcESkpnpJUBo6zJiAq1AkDQwcHQM=";
-    };
-
-    # Fonts (catppuccin/nix doesn't handle this)
-    fonts.monospace = {
-      package = pkgs.nerd-fonts.jetbrains-mono;
-      name = "JetBrainsMono Nerd Font";
-    };
-
-    overlays.enable = false;
-  };
-
-  # Basic graphics support (Intel-specific drivers in hardware/intel-graphics.nix)
-  hardware.graphics.enable = true;
-
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1"; # Enable Wayland for Chromium/Electron apps
-  };
-
-  system.stateVersion = "25.05";
+  # libinput for touchpad/mouse
+  services.libinput.enable = true;
 }
