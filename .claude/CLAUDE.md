@@ -7,7 +7,7 @@ NixOS flake-based configuration for multiple machines with Hyprland.
 ```
 ├── flake.nix              # Main flake with inputs and nixosConfigurations
 ├── hosts/<name>/
-│   ├── default.nix        # Host entry point (imports disko, common modules)
+│   ├── default.nix        # Host entry point (imports system modules)
 │   ├── disko.nix          # Disk partitioning
 │   └── profile.nix        # Machine-specific values (hostname, display, etc.)
 ├── modules/
@@ -18,8 +18,6 @@ NixOS flake-based configuration for multiple machines with Hyprland.
 │   │   ├── power.nix      # Laptop power management
 │   │   ├── stylix.nix     # Wallpaper and font theming
 │   │   └── hardware/      # GPU drivers (intel, amd)
-│   ├── nixos/
-│   │   └── common.nix     # Entry point that imports system modules
 │   ├── desktop/           # Home-manager desktop modules
 │   │   ├── hyprland.nix   # Window manager
 │   │   ├── waybar.nix     # Status bar
@@ -31,12 +29,11 @@ NixOS flake-based configuration for multiple machines with Hyprland.
 │   │   ├── wallpaper.nix  # swww + waypaper
 │   │   ├── clipboard.nix  # Clipboard manager
 │   │   └── ...            # chromium, ghostty, wlogout, etc.
-│   └── home/              # Home-manager entry points
-│       ├── ui.nix         # Imports desktop modules
+│   └── home/              # Home-manager program modules
 │       ├── dev.nix        # Dev tools (git, neovim, direnv)
 │       └── shell.nix      # Shell config (zsh, fzf, eza)
 ├── users/
-│   └── default-user.nix   # User home config (imports home modules)
+│   └── default-user.nix   # User home config (imports desktop + home modules)
 └── scripts/               # Validation and install scripts
 ```
 
@@ -49,7 +46,7 @@ NixOS flake-based configuration for multiple machines with Hyprland.
 
 ### Adding a new desktop feature
 1. Create `modules/desktop/feature.nix` with the configuration
-2. Add import to `modules/home/ui.nix`
+2. Add import to `users/default-user.nix`
 
 ### Adding a new host
 1. Create `hosts/<name>/profile.nix` with machine-specific values

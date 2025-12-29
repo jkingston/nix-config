@@ -6,8 +6,14 @@
 {
   imports = [
     ./disko.nix
-    ../../modules/nixos/common.nix
+    ../../modules/system/core.nix
+    ../../modules/system/greetd.nix
+    ../../modules/system/pipewire.nix
+    ../../modules/system/power.nix
+    ../../modules/system/stylix.nix
   ];
+
+  services.libinput.enable = true;
 
   networking.hostName = hostCfg.hostName;
 

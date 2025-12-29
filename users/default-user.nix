@@ -67,7 +67,21 @@
 
   imports = [
     gazelle.homeModules.gazelle
-    ../modules/home/ui.nix
+    ../modules/desktop/xdg-portal.nix
+    ../modules/desktop/hyprland.nix
+    ../modules/desktop/waybar.nix
+    ../modules/desktop/walker.nix
+    ../modules/desktop/mako.nix
+    ../modules/desktop/hyprlock.nix
+    ../modules/desktop/wlogout.nix
+    ../modules/desktop/hypridle.nix
+    ../modules/desktop/nightlight.nix
+    ../modules/desktop/wallpaper.nix
+    ../modules/desktop/clipboard.nix
+    ../modules/desktop/scripts.nix
+    ../modules/desktop/packages.nix
+    ../modules/desktop/chromium.nix
+    ../modules/desktop/ghostty.nix
     ../modules/home/dev.nix
     ../modules/home/shell.nix
   ];
