@@ -68,27 +68,6 @@
         "type": "github"
       }
     },
-    "catppuccin": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1763111355,
-        "narHash": "sha256-iUTS8wV7tCo7A456Ro6ZOJ6Bbk0V5Is3zPd+BmJHJ/Q=",
-        "owner": "catppuccin",
-        "repo": "nix",
-        "rev": "5375a9d80c4b2a835c7203920f997f3ea4224423",
-        "type": "github"
-      },
-      "original": {
-        "owner": "catppuccin",
-        "ref": "release-25.05",
-        "repo": "nix",
-        "type": "github"
-      }
-    },
     "determinate": {
       "inputs": {
         "determinate-nixd-aarch64-darwin": "determinate-nixd-aarch64-darwin",
@@ -515,7 +494,6 @@
     },
     "root": {
       "inputs": {
-        "catppuccin": "catppuccin",
         "determinate": "determinate",
         "disko": "disko",
         "gazelle": "gazelle",

@@ -17,7 +17,7 @@ _:
       layer = "overlay";
       icons = true;
       max-icon-size = 32;
-      font = "sans-serif 14";
+      # font set by Stylix
     };
   };
 }

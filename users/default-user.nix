@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   hostCfg,
   username,
   gazelle,
@@ -11,18 +12,6 @@
     inherit username;
     homeDirectory = "/home/${username}";
     stateVersion = "25.05";
-
-    # XWayland DPI scaling (96 * scale factor)
-    # This is loaded by xrdb in Hyprland exec-once
-    file.".Xresources".text = ''
-      Xft.dpi: ${builtins.toString (builtins.floor (96.0 * hostCfg.scale))}
-      Xft.autohint: 0
-      Xft.lcdfilter: lcddefault
-      Xft.hintstyle: hintfull
-      Xft.hinting: 1
-      Xft.antialias: 1
-      Xft.rgba: rgb
-    '';
 
     # Adwaita cursor (Omarchy default)
     pointerCursor = {
@@ -37,26 +26,13 @@
     };
   };
 
-  # Catppuccin - primary theming for home-manager apps
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-    accent = "blue";
-    mako.enable = true;
-    waybar.enable = false; # Using custom Omarchy styling
-    bat.enable = true;
-    fzf.enable = true;
-    hyprlock.enable = false; # Using custom Omarchy styling
-    wlogout.enable = true;
-    ghostty.enable = true;
-  };
-
   # Dark mode preference (enables prefers-color-scheme: dark in browsers)
+  # Use mkForce to override Stylix's default
   dconf = {
     enable = true;
     settings = {
       "org/gnome/desktop/interface" = {
-        color-scheme = "prefer-dark";
+        color-scheme = lib.mkForce "prefer-dark";
       };
     };
   };

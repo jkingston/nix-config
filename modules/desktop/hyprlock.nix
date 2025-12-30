@@ -4,6 +4,9 @@
 {
   home.packages = [ pkgs.hyprlock ];
 
+  # Disable Stylix hyprlock - using custom Omarchy styling
+  stylix.targets.hyprlock.enable = false;
+
   programs.hyprlock = {
     enable = true;
     settings = {

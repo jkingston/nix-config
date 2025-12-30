@@ -14,12 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    catppuccin = {
-      # No release-25.11 yet; using 25.05 which should be compatible
-      url = "github:catppuccin/nix/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     disko = {
@@ -36,7 +30,6 @@
       nixpkgs,
       home-manager,
       stylix,
-      catppuccin,
       nixos-hardware,
       disko,
       gazelle,
@@ -87,7 +80,6 @@
           modules = [
             determinate.nixosModules.default
             stylix.nixosModules.stylix
-            catppuccin.nixosModules.catppuccin
             disko.nixosModules.disko
             ./hosts/${name}/default.nix
 
@@ -105,7 +97,6 @@
                 useUserPackages = true;
                 users.${username} = {
                   imports = [
-                    catppuccin.homeModules.catppuccin
                     ./users/default-user.nix
                   ];
                 };

@@ -52,31 +52,13 @@
     uwsm.enable = true;
   };
 
-  # Catppuccin theming
-  catppuccin = {
-    enable = true;
-    flavor = "mocha";
-    accent = "blue";
-
-    plymouth = {
-      enable = true;
-      flavor = "mocha";
-    };
-  };
-
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # Plymouth boot splash
-    plymouth = {
-      enable = true;
-      extraConfig = ''
-        ShowDelay=0
-        DeviceTimeout=8
-      '';
-    };
+    # Plymouth boot splash (themed by Stylix)
+    plymouth.enable = true;
 
     # Enable systemd in initrd for graphical LUKS prompt
     initrd.systemd.enable = true;

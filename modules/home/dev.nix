@@ -48,7 +48,7 @@
       };
     };
 
-    delta.enable = true; # Override catppuccin's deprecated git.delta.enable
+    delta.enable = true;
 
     direnv = {
       enable = true;

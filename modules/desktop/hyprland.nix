@@ -219,7 +219,6 @@
         gaps_in = 5;
         gaps_out = 5;
         border_size = 2;
-        # Colors set by catppuccin module
       };
 
       decoration = {
@@ -247,7 +246,7 @@
           enabled = true;
           range = 8;
           render_power = 3;
-          color = "rgba(0, 0, 0, 0.5)";
+          # color set by Stylix
         };
       };
 

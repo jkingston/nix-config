@@ -1,21 +1,21 @@
-# Stylix configuration - wallpaper and fonts (catppuccin handles colors)
+# Stylix configuration - theming, wallpaper and fonts
 { pkgs, ... }:
 
 {
   stylix = {
     enable = true;
-    autoEnable = false; # Don't auto-theme apps - catppuccin does that
+    autoEnable = true; # Theme all supported apps
 
-    # Color scheme still needed for Stylix internals
+    # Catppuccin Mocha color scheme
     base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
-    # Wallpaper (catppuccin/nix doesn't handle this)
+    # Wallpaper
     image = pkgs.fetchurl {
       url = "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/forrest.png";
       sha256 = "sha256-jDqDj56e9KI/xgEIcESkpnpJUBo6zJiAq1AkDQwcHQM=";
     };
 
-    # Fonts (catppuccin/nix doesn't handle this)
+    # Fonts
     fonts.monospace = {
       package = pkgs.nerd-fonts.jetbrains-mono;
       name = "JetBrainsMono Nerd Font";
