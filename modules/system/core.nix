@@ -30,6 +30,7 @@
   users.users.${username} = {
     isNormalUser = true;
     initialPassword = "nixos";
+    shell = pkgs.bash;
     extraGroups = [
       "wheel"
       "networkmanager"
@@ -43,6 +44,7 @@
   services.xserver.enable = false;
 
   programs = {
+    nix-ld.enable = true;
     hyprland = {
       enable = true;
       withUWSM = true;
