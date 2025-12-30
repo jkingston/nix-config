@@ -2,6 +2,9 @@
 
 {
   # Intel Xe Graphics (Framework 13th gen and similar)
+  # Early KMS for high-resolution Plymouth
+  boot.initrd.kernelModules = [ "i915" ];
+
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
