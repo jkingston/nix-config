@@ -63,8 +63,6 @@
       };
     };
 
-    claude-code.enable = true;
-
     # Neovim with LazyVim
     neovim = {
       enable = true;

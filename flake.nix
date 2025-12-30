@@ -83,12 +83,6 @@
             disko.nixosModules.disko
             ./hosts/${name}/default.nix
 
-            # Allow unfree claude-code package
-            {
-              nixpkgs.config.allowUnfreePredicate =
-                pkg: builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
-            }
-
             # home-manager as a NixOS module
             home-manager.nixosModules.home-manager
             {
