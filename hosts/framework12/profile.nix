@@ -13,6 +13,13 @@
     scale = 1.25;
   };
 
+  # Window gaps and borders
+  gaps = {
+    inner = 5;
+    outer = 5;
+    border = 2;
+  };
+
   # Hardware modules (NixOS level)
   hardwareModules = [
     nixos-hardware.nixosModules.framework-13th-gen-intel

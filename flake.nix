@@ -54,6 +54,7 @@
           scale = profile.monitor.scale;
           isLaptop = profile.isLaptop;
           isVM = profile.isVM or false;
+          gaps = profile.gaps or { };
           hardwareModules = profile.hardwareModules;
           extraModules = profile.extraModules;
         };

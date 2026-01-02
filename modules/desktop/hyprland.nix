@@ -1,5 +1,6 @@
 # Hyprland window manager configuration
 {
+  lib,
   hostCfg,
   ...
 }:
@@ -214,12 +215,11 @@
         focus_on_activate = true;
       };
 
-      # Omarchy styling
-      general = {
-        gaps_in = 5;
-        gaps_out = 5;
-        border_size = 2;
-      };
+      # Window gaps and borders (per-host config, defaults to Hyprland defaults)
+      general =
+        lib.optionalAttrs (hostCfg.gaps.inner or null != null) { gaps_in = hostCfg.gaps.inner; }
+        // lib.optionalAttrs (hostCfg.gaps.outer or null != null) { gaps_out = hostCfg.gaps.outer; }
+        // lib.optionalAttrs (hostCfg.gaps.border or null != null) { border_size = hostCfg.gaps.border; };
 
       decoration = {
         rounding = 0; # Square windows (Omarchy style)

@@ -12,6 +12,12 @@
     scale = 1.66666666;
   };
 
+  # Window gaps and borders
+  gaps = {
+    inner = 5;
+    outer = 10;
+  };
+
   # Hardware modules (NixOS level)
   hardwareModules = [
     ../../modules/system/hardware/amd-graphics.nix
