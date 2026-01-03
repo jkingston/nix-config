@@ -171,11 +171,12 @@ _:
 
       "custom/nightlight" = {
         format = "{}";
-        exec = "[ -f /tmp/hyprsunset-night ] && echo '󱩌' || echo '󰹏'";
-        interval = "once";
+        return-type = "json";
+        exec = "~/.local/bin/hyprsunset-status";
+        interval = 60;
         signal = 10;
         on-click = "~/.local/bin/hyprsunset-toggle";
-        tooltip = false;
+        on-click-right = "~/.local/bin/hyprsunset-settings";
       };
     };
 
@@ -229,6 +230,7 @@ _:
       #pulseaudio,
       #power-profiles-daemon,
       #custom-launcher,
+      #custom-nightlight,
       #network,
       #bluetooth {
         min-width: 12px;
