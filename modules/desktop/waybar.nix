@@ -7,42 +7,39 @@
 }:
 
 {
-  # System monitor script for waybar (CPU + RAM in tooltip)
+  # System monitor script for waybar (smart tooltip showing top processes)
   home.file.".local/bin/waybar-sysmon" = {
     text = ''
       #!/usr/bin/env bash
-      # Output JSON for waybar with CPU and RAM stats
+      # Smart sysmon: shows what's using resources, not just percentages
 
-      # Get CPU usage (average across all cores)
-      CPU=$(${pkgs.coreutils}/bin/cat /proc/stat | ${pkgs.gawk}/bin/awk '/^cpu / {
-        idle=$5; total=$2+$3+$4+$5+$6+$7+$8
-        if (NR>1) {
-          d_idle=idle-prev_idle; d_total=total-prev_total
-          printf "%.0f", 100*(1-(d_idle/d_total))
-        }
-        prev_idle=idle; prev_total=total
-      }')
+      # Get top CPU process (excluding this script)
+      read -r TOP_CPU_PCT TOP_CPU_NAME <<< $(${pkgs.procps}/bin/ps -eo pcpu,comm --no-headers --sort=-pcpu | head -1 | ${pkgs.gawk}/bin/awk '{print int($1), $2}')
 
-      # If first run, get a quick sample
-      if [ -z "$CPU" ]; then
-        read -r cpu user nice system idle iowait irq softirq < /proc/stat
-        total1=$((user + nice + system + idle + iowait + irq + softirq))
-        idle1=$idle
-        sleep 0.1
-        read -r cpu user nice system idle iowait irq softirq < /proc/stat
-        total2=$((user + nice + system + idle + iowait + irq + softirq))
-        idle2=$idle
-        CPU=$(( 100 * ( (total2 - total1) - (idle2 - idle1) ) / (total2 - total1) ))
+      # Get top RAM process
+      read -r TOP_RAM_KB TOP_RAM_NAME <<< $(${pkgs.procps}/bin/ps -eo rss,comm --no-headers --sort=-rss | head -1 | ${pkgs.gawk}/bin/awk '{print $1, $2}')
+      TOP_RAM_GB=$(echo "scale=1; $TOP_RAM_KB / 1048576" | ${pkgs.bc}/bin/bc)
+
+      # Get overall RAM usage
+      read -r TOTAL AVAIL <<< $(${pkgs.gawk}/bin/awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {print total, avail}' /proc/meminfo)
+      RAM_PCT=$((100 * (TOTAL - AVAIL) / TOTAL))
+
+      # Build smart tooltip
+      if [ "$TOP_CPU_PCT" -gt 15 ]; then
+        CPU_PART="$TOP_CPU_NAME ($TOP_CPU_PCT%)"
+      else
+        CPU_PART="CPU: $TOP_CPU_PCT%"
       fi
 
-      # Get RAM usage
-      read -r TOTAL AVAIL <<< $(${pkgs.gawk}/bin/awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {print total, avail}' /proc/meminfo)
-      USED=$((TOTAL - AVAIL))
-      USED_GB=$(echo "scale=1; $USED / 1048576" | ${pkgs.bc}/bin/bc)
-      TOTAL_GB=$(echo "scale=0; $TOTAL / 1048576" | ${pkgs.bc}/bin/bc)
-      RAM_PCT=$((100 * USED / TOTAL))
+      # Show top RAM process if using > 1GB
+      TOP_RAM_MB=$((TOP_RAM_KB / 1024))
+      if [ "$TOP_RAM_MB" -gt 1024 ]; then
+        RAM_PART="$TOP_RAM_NAME (''${TOP_RAM_GB}G)"
+      else
+        RAM_PART="RAM: $RAM_PCT%"
+      fi
 
-      printf '{"text": "󰍛", "tooltip": "CPU: %s%%\\nRAM: %sG/%sG (%s%%)"}\n' "$CPU" "$USED_GB" "$TOTAL_GB" "$RAM_PCT"
+      printf '{"text": "󰍛", "tooltip": "%s • %s"}\n' "$CPU_PART" "$RAM_PART"
     '';
     executable = true;
   };
@@ -164,8 +161,8 @@
         };
         tooltip-format = "Volume: {volume}%";
         scroll-step = 5;
-        on-click = "pavucontrol";
-        on-click-right = "pamixer -t";
+        on-click = "ghostty --class=com.floating.tui -e pulsemixer";
+        on-click-right = "wpctl set-mute @DEFAULT_SINK@ toggle";
       };
 
       "pulseaudio#source" = {
@@ -173,7 +170,8 @@
         format-source = "󰍬";
         format-source-muted = "󰍭";
         tooltip-format = "Mic: {source_volume}%";
-        on-click-right = "pamixer --default-source -t";
+        on-click = "ghostty --class=com.floating.tui -e pulsemixer";
+        on-click-right = "wpctl set-mute @DEFAULT_SOURCE@ toggle";
       };
 
       "custom/sysmon" = {

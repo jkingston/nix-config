@@ -105,47 +105,34 @@
     executable = true;
   };
 
-  # Hyprsunset gradual transition script (30 min fade)
-  home.file.".local/bin/hyprsunset-transition" = {
+  # Hyprsunset apply script - checks time and applies correct mode instantly
+  home.file.".local/bin/hyprsunset-apply" = {
     text = ''
       #!/usr/bin/env bash
-      # Gradual transition between day/night over 30 minutes
-      # Usage: hyprsunset-transition day|night
+      # Apply correct nightlight state based on current time
+      # Called by timer every 15 min and on wake from sleep
 
       # Skip if manual override is active
       [ -f /tmp/hyprsunset-auto ] && exit 0
 
       CONFIG_DIR="$HOME/.config/hyprsunset"
-      NIGHT_TEMP=$(cat "$CONFIG_DIR/temperature" 2>/dev/null || echo "3500")
+      TEMP=$(cat "$CONFIG_DIR/temperature" 2>/dev/null || echo "3500")
       COORDS=$(~/.local/bin/hyprsunset-coords)
 
-      MODE="$1"
-      STEPS=30
-      STEP_DURATION=60  # 60 seconds per step
-
-      DAY_TEMP=6500
-
-      if [ "$MODE" = "day" ]; then
-        START=$NIGHT_TEMP
-        END=$DAY_TEMP
-        rm -f /tmp/hyprsunset-night
+      if ${pkgs.sunwait}/bin/sunwait poll $COORDS; then
+        # Daytime - disable night light
+        if [ -f /tmp/hyprsunset-night ]; then
+          rm -f /tmp/hyprsunset-night
+          hyprctl hyprsunset identity
+          pkill -SIGRTMIN+10 waybar || true
+        fi
       else
-        START=$DAY_TEMP
-        END=$NIGHT_TEMP
-        touch /tmp/hyprsunset-night
-      fi
-
-      pkill -SIGRTMIN+10 waybar || true
-
-      for i in $(seq 0 $STEPS); do
-        TEMP=$((START + (END - START) * i / STEPS))
-        hyprctl hyprsunset temperature $TEMP
-        [ $i -lt $STEPS ] && sleep $STEP_DURATION
-      done
-
-      # Final state - identity for day mode
-      if [ "$MODE" = "day" ]; then
-        hyprctl hyprsunset identity
+        # Nighttime - enable night light
+        if [ ! -f /tmp/hyprsunset-night ]; then
+          touch /tmp/hyprsunset-night
+          hyprctl hyprsunset temperature "$TEMP"
+          pkill -SIGRTMIN+10 waybar || true
+        fi
       fi
     '';
     executable = true;
@@ -304,51 +291,19 @@
     executable = true;
   };
 
-  # Sunrise transition - gradual fade to day mode
-  systemd.user.services.hyprsunset-day = {
-    Unit.Description = "Gradual transition to day mode at sunrise";
+  # Nightlight check service - runs every 15 minutes to check day/night
+  systemd.user.services.hyprsunset-check = {
+    Unit.Description = "Check and apply correct nightlight state";
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.writeShellScript "hyprsunset-day" ''
-        # Get coordinates from system timezone
-        COORDS=$(${config.home.homeDirectory}/.local/bin/hyprsunset-coords)
-        # Wait for sunrise
-        ${pkgs.sunwait}/bin/sunwait sun up $COORDS
-        # Gradual 30-minute transition to day mode
-        ${config.home.homeDirectory}/.local/bin/hyprsunset-transition day
-      ''}";
+      ExecStart = "${config.home.homeDirectory}/.local/bin/hyprsunset-apply";
     };
   };
 
-  systemd.user.timers.hyprsunset-day = {
-    Unit.Description = "Trigger sunrise transition";
+  systemd.user.timers.hyprsunset-check = {
+    Unit.Description = "Periodic nightlight check";
     Timer = {
-      OnCalendar = "*-*-* 04:00:00"; # Run at 4am daily
-      Persistent = true;
-    };
-    Install.WantedBy = [ "timers.target" ];
-  };
-
-  # Sunset transition - gradual fade to night mode
-  systemd.user.services.hyprsunset-night = {
-    Unit.Description = "Gradual transition to night mode at sunset";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.writeShellScript "hyprsunset-night" ''
-        # Get coordinates from system timezone
-        COORDS=$(${config.home.homeDirectory}/.local/bin/hyprsunset-coords)
-        # Wait for sunset
-        ${pkgs.sunwait}/bin/sunwait sun down $COORDS
-        # Gradual 30-minute transition to night mode
-        ${config.home.homeDirectory}/.local/bin/hyprsunset-transition night
-      ''}";
-    };
-  };
-
-  systemd.user.timers.hyprsunset-night = {
-    Unit.Description = "Trigger sunset transition";
-    Timer = {
-      OnCalendar = "*-*-* 14:00:00"; # Run at 2pm daily
+      OnCalendar = "*:0/15"; # Every 15 minutes
       Persistent = true;
     };
     Install.WantedBy = [ "timers.target" ];

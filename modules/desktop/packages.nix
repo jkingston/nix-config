@@ -23,6 +23,7 @@
 
       # TUI managers (Omarchy style)
       bluetui # Bluetooth TUI
+      pulsemixer # Audio TUI
 
       # Misc
       nautilus # file manager
