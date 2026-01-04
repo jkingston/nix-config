@@ -214,8 +214,8 @@
           activated = "󰅶";
           deactivated = "󰾪";
         };
-        tooltip-format-activated = "Screen lock: disabled";
-        tooltip-format-deactivated = "Screen lock: enabled";
+        tooltip-format-activated = "Idle prevention: on";
+        tooltip-format-deactivated = "Idle prevention: off";
       };
 
       "custom/nightlight" = {
