@@ -210,7 +210,7 @@
       STATE_FILE="/tmp/hyprsunset-night"
       AUTO_FILE="/tmp/hyprsunset-auto"
 
-      # Determine mode
+      # Determine mode and state
       if [ -f "$AUTO_FILE" ]; then
         if [ -f "$STATE_FILE" ]; then
           MODE="on"
@@ -221,11 +221,13 @@
         MODE="auto"
       fi
 
-      # Icon based on current night state
+      # Current state (on/off) and icon
       if [ -f "$STATE_FILE" ]; then
         ICON="󱩌"
+        STATE="ON (''${TEMP}K)"
       else
         ICON="󰹏"
+        STATE="OFF"
       fi
 
       # Parse daylight times correctly from sunwait report
@@ -235,7 +237,7 @@
       SUNSET=$(echo "$DAYLIGHT" | awk '{print $3}')
 
       # Output JSON for waybar
-      printf '{"text": "%s", "tooltip": "Mode: %s\\n%s\\nTemp: %sK\\n☀️ %s  🌙 %s"}' "$ICON" "$MODE" "$TZ" "$TEMP" "$SUNRISE" "$SUNSET"
+      printf '{"text": "%s", "tooltip": "Night light: %s\\nMode: %s\\n%s\\n☀️ %s  🌙 %s"}' "$ICON" "$STATE" "$MODE" "$TZ" "$SUNRISE" "$SUNSET"
     '';
     executable = true;
   };
