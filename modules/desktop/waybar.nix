@@ -65,7 +65,6 @@
         "bluetooth"
         "network"
         "pulseaudio"
-        "pulseaudio#source"
         "custom/sysmon"
       ]
       ++ lib.optionals hostCfg.isLaptop [ "power-profiles-daemon" ]
@@ -163,15 +162,6 @@
         scroll-step = 5;
         on-click = "ghostty --class=com.floating.tui -e pulsemixer";
         on-click-right = "wpctl set-mute @DEFAULT_SINK@ toggle";
-      };
-
-      "pulseaudio#source" = {
-        format = "{format_source}";
-        format-source = "󰍬";
-        format-source-muted = "󰍭";
-        tooltip-format = "Mic: {source_volume}%";
-        on-click = "ghostty --class=com.floating.tui -e pulsemixer";
-        on-click-right = "wpctl set-mute @DEFAULT_SOURCE@ toggle";
       };
 
       "custom/sysmon" = {
@@ -325,7 +315,6 @@
 
       #battery,
       #pulseaudio,
-      #pulseaudio.source,
       #power-profiles-daemon,
       #custom-launcher,
       #custom-nightlight,
@@ -365,10 +354,6 @@
 
       #idle_inhibitor.activated {
         color: #f9e2af;
-      }
-
-      #pulseaudio.source.muted {
-        color: #6c7086;
       }
 
       tooltip {
