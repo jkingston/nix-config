@@ -230,9 +230,7 @@ _:
       #pulseaudio,
       #power-profiles-daemon,
       #custom-launcher,
-      #custom-nightlight,
-      #network,
-      #bluetooth {
+      #custom-nightlight {
         min-width: 12px;
         margin: 0 7.5px;
       }
@@ -242,10 +240,12 @@ _:
       }
 
       #bluetooth {
+        min-width: 12px;
         margin-right: 17px;
       }
 
       #network {
+        min-width: 12px;
         margin-right: 13px;
       }
 
