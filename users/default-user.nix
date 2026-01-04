@@ -56,7 +56,7 @@
     ../modules/desktop/clipboard.nix
     ../modules/desktop/scripts.nix
     ../modules/desktop/packages.nix
-    ../modules/desktop/chromium.nix
+    ../modules/desktop/librewolf.nix
     ../modules/desktop/ghostty.nix
     ../modules/home/dev.nix
     ../modules/home/shell.nix

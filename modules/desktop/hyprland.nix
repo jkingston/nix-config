@@ -66,7 +66,7 @@
         # Launching apps (Super + Shift + key)
         "$mod, RETURN, exec, ghostty"
         "$mod, SPACE, exec, rofi -show drun"
-        "$mod SHIFT, B, exec, chromium"
+        "$mod SHIFT, B, exec, librewolf"
         "$mod SHIFT, N, exec, ghostty -e nvim"
         "$mod SHIFT, T, exec, ghostty -e btop"
         "$mod SHIFT, F, exec, nautilus" # file manager
