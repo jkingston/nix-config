@@ -119,18 +119,18 @@
       TEMP=$(cat "$CONFIG_DIR/temperature" 2>/dev/null || echo "3500")
       COORDS=$(~/.local/bin/hyprsunset-coords)
 
-      if ${pkgs.sunwait}/bin/sunwait poll $COORDS; then
+      if [ "$(${pkgs.sunwait}/bin/sunwait poll $COORDS)" = "DAY" ]; then
         # Daytime - disable night light
         if [ -f /tmp/hyprsunset-night ]; then
           rm -f /tmp/hyprsunset-night
-          hyprctl hyprsunset identity
+          hyprsunset -i
           pkill -SIGRTMIN+10 waybar || true
         fi
       else
         # Nighttime - enable night light
         if [ ! -f /tmp/hyprsunset-night ]; then
           touch /tmp/hyprsunset-night
-          hyprctl hyprsunset temperature "$TEMP"
+          hyprsunset -t "$TEMP"
           pkill -SIGRTMIN+10 waybar || true
         fi
       fi
@@ -155,7 +155,7 @@
         # Auto -> On: Force night mode
         touch "$AUTO_FILE"
         touch "$STATE_FILE"
-        hyprctl hyprsunset temperature "$TEMP"
+        hyprsunset -t "$TEMP"
         notify-send -t 1500 "Night Light: On"
       elif [ -f "$STATE_FILE" ]; then
         # On -> Off: Force day mode
@@ -166,13 +166,13 @@
         # Off -> Auto: Resume schedule
         rm "$AUTO_FILE"
         # Check if it should be night based on current time
-        if ${pkgs.sunwait}/bin/sunwait poll $COORDS; then
+        if [ "$(${pkgs.sunwait}/bin/sunwait poll $COORDS)" = "DAY" ]; then
           # Daytime - keep day mode
           :
         else
           # Nighttime - apply night mode
           touch "$STATE_FILE"
-          hyprctl hyprsunset temperature "$TEMP"
+          hyprsunset -t "$TEMP"
         fi
         notify-send -t 1500 "Night Light: Auto"
       fi
@@ -266,7 +266,7 @@
               if [ -z "$SELECTED" ]; then
                 # ESC pressed - revert to previous
                 if [ -f /tmp/hyprsunset-night ]; then
-                  hyprctl hyprsunset temperature "$PREV_TEMP"
+                  hyprsunset -t "$PREV_TEMP"
                 fi
                 break
               fi
@@ -276,7 +276,7 @@
 
               if [ -n "$VALUE" ]; then
                 # Apply live preview
-                hyprctl hyprsunset temperature "$VALUE"
+                hyprsunset -t "$VALUE"
 
                 # Save and exit on second selection of same value (confirm)
                 if [ "$VALUE" = "$LAST_VALUE" ]; then

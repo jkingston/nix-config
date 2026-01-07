@@ -52,6 +52,7 @@
     ../modules/desktop/hyprlock.nix
     ../modules/desktop/hypridle.nix
     ../modules/desktop/nightlight.nix
+    ../modules/desktop/nixos-updates.nix
     ../modules/desktop/wallpaper.nix
     ../modules/desktop/clipboard.nix
     ../modules/desktop/scripts.nix

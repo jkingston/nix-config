@@ -106,6 +106,11 @@
 
   hardware.graphics.enable = true;
 
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
   };

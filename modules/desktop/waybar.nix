@@ -58,7 +58,7 @@
         "custom/launcher"
         "hyprland/workspaces"
       ];
-      modules-center = [ "clock" ];
+      modules-center = [ "clock" "custom/updates" ];
       modules-right = [
         "privacy"
         "tray"
@@ -169,6 +169,16 @@
         return-type = "json";
         interval = 5;
         on-click = "ghostty -e btop";
+      };
+
+      "custom/updates" = {
+        exec = "~/.local/bin/nixos-updates-check";
+        signal = 12;
+        on-click = "ghostty --class=com.floating.tui -e ~/.local/bin/nixos-update";
+        on-click-right = "~/.local/bin/nixos-update-menu";
+        interval = 300; # Poll cache every 5 min
+        tooltip = true;
+        return-type = "json";
       };
 
       bluetooth = {
@@ -319,11 +329,32 @@
       #custom-launcher,
       #custom-nightlight,
       #custom-sysmon,
+      #custom-updates,
       #idle_inhibitor,
       #backlight,
       #privacy {
         min-width: 12px;
         margin: 0 7.5px;
+      }
+
+      #custom-updates.has-updates {
+        color: #f9e2af;
+      }
+
+      #custom-updates.checking {
+        opacity: 0.5;
+      }
+
+      #custom-updates.dirty {
+        color: #fab387;
+      }
+
+      #custom-updates.disabled {
+        opacity: 0.5;
+      }
+
+      #custom-updates.error {
+        color: #f38ba8;
       }
 
       #tray {

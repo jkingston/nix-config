@@ -25,6 +25,12 @@
       bluetui # Bluetooth TUI
       pulsemixer # Audio TUI
 
+      # Audio tools (for waybar pulseaudio module)
+      pulseaudio # provides pactl
+
+      # Update checking
+      nvd # nix version diff for comparing system generations
+
       # Misc
       nautilus # file manager
 
