@@ -150,12 +150,12 @@
 
       pulseaudio = {
         format = "{icon}";
-        format-muted = "";
+        format-muted = "󰝟";
         format-icons = {
           default = [
-            ""
-            ""
-            ""
+            "󰕿"
+            "󰖀"
+            "󰕾"
           ];
         };
         tooltip-format = "Volume: {volume}%";
@@ -182,7 +182,7 @@
       };
 
       bluetooth = {
-        format = "";
+        format = "󰂯";
         format-disabled = "󰂲";
         format-connected = "󰂱";
         tooltip-format = "Devices: {num_connections}";
