@@ -1,9 +1,7 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    # Framework 13 NVMe - use disk ID for stable reference
-    # Find with: ls -la /dev/disk/by-id/ | grep nvme
-    device = "/dev/disk/by-id/nvme-WD_BLACK_SN770_1TB_XXXXXX";
+    device = "/dev/disk/by-id/nvme-WD_BLACK_SN770_2TB_25155280049";
     content = {
       type = "gpt";
       partitions = {
