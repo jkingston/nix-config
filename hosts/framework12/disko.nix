@@ -1,7 +1,7 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/disk/by-id/nvme-WD_BLACK_SN770M_2TB_251552800499";
+    device = "/dev/nvme0n1";
     content = {
       type = "gpt";
       partitions = {
